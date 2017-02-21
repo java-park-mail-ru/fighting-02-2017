@@ -15,7 +15,7 @@ import java.util.concurrent.atomic.AtomicLong;
  * Created by Denis on 21.02.2017.
  */
 @RestController
-@RequestMapping("/api/")
+@RequestMapping("/api/user")
 public class UserController {
     private final AccountService accountService;
     private AtomicLong IDGEN;
@@ -97,7 +97,7 @@ public class UserController {
         return answer.toString();
     }
 
-    @RequestMapping(path = "/update_user", method = RequestMethod.POST, produces = "application/json", consumes = "application/json")
+    @RequestMapping(path = "/updateuser", method = RequestMethod.POST, produces = "application/json", consumes = "application/json")
     public String updateUser(@RequestBody ObjUser body) {
         final JSONObject answer = new JSONObject();
         accountService.update(body, new AccountService.Callback() {

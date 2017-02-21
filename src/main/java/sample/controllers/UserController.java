@@ -66,7 +66,7 @@ public class UserController {
         return answer.toString();
     }
 
-    @RequestMapping(path = "/getuser", method = RequestMethod.POST, produces = "application/json", consumes = "application/json")
+    @RequestMapping(path = "/get", method = RequestMethod.POST, produces = "application/json", consumes = "application/json")
     public String getUser(@RequestBody ObjSessionKey objKey, HttpSession httpSession) {
         final JSONObject answer = new JSONObject();
         final String key = objKey.getKey();
@@ -97,7 +97,7 @@ public class UserController {
         return answer.toString();
     }
 
-    @RequestMapping(path = "/updateuser", method = RequestMethod.POST, produces = "application/json", consumes = "application/json")
+    @RequestMapping(path = "/update", method = RequestMethod.POST, produces = "application/json", consumes = "application/json")
     public String updateUser(@RequestBody ObjUser body) {
         final JSONObject answer = new JSONObject();
         accountService.update(body, new AccountService.Callback() {

@@ -1,7 +1,9 @@
 package sample.controllers;
 
+import objects.HttpStatus;
 import objects.ObjSessionKey;
 import objects.ObjUser;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -9,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpSession;
+import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
@@ -28,20 +31,19 @@ public class UserController {
     @RequestMapping(path = "/login", method = RequestMethod.POST, produces = "application/json", consumes = "application/json")
     public String loginUser(@RequestBody ObjUser body, HttpSession httpsession) {
         final JSONObject answer = new JSONObject();
-        accountService.login(body.getLogin(), body.getPassword(), new AccountService.Callback() {
+        accountService.login(body, new AccountService.CallbackLogin() {
             @Override
-            public void onSuccess() {
-                final long id = IDGEN.getAndIncrement();
-                answer.put("status", "200 OK");
-                answer.put("result", "success");
-                answer.put("user_key", String.valueOf(id));
-                httpsession.setAttribute(String.valueOf(id), body);
+            public void onSuccess(String status, ObjUser objUser) {
+                final long httpSessionId = IDGEN.getAndIncrement();
+                answer.put("status", status);
+                answer.put("user_key", String.valueOf(httpSessionId));
+                answer.put("user", objUser.getJson());
+                httpsession.setAttribute(String.valueOf(httpSessionId), objUser);
             }
 
             @Override
-            public void onError() {
-                answer.put("status", "200 OK");
-                answer.put("result", "error");
+            public void onError(String status) {
+                answer.put("status", status);
             }
         });
         return answer.toString();
@@ -52,15 +54,13 @@ public class UserController {
         final JSONObject answer = new JSONObject();
         accountService.register(body, new AccountService.Callback() {
             @Override
-            public void onSuccess() {
-                answer.put("status", "200 OK");
-                answer.put("result", "success");
+            public void onSuccess(String status) {
+                answer.put("status", status);
             }
 
             @Override
-            public void onError() {
-                answer.put("status", "200 OK");
-                answer.put("result", "error");
+            public void onError(String status) {
+                answer.put("status", status);
             }
         });
         return answer.toString();
@@ -73,44 +73,57 @@ public class UserController {
 
         if (key != null) {
             if (httpSession.getAttribute(key) != null) {
-                answer.put("status", "200 OK");
-                answer.put("result", "success");
-                answer.put("user_status", "logged");
-                answer.put("user", httpSession.getAttribute(key));
-                /*JSONObject user = new JSONObject();
-                try {
-                    Method getNickname = httpSession.getAttribute(key).getClass().getMethod("getNickname");
-                    getNickname.invoke(httpSession.getAttribute(key).getClass().getConstructor().newInstance());
-                } catch (ReflectiveOperationException e) {
-                    throw new RuntimeException(e);
-                }*/
-
+                answer.put("status", new HttpStatus().getOk());
+                answer.put("user", ((ObjUser) httpSession.getAttribute(key)).getJson());
             } else {
-                answer.put("status", "200 OK");
-                answer.put("result", "success");
-                answer.put("user_status", "unlogged");
+                answer.put("status", new HttpStatus().getUnauthorized());
             }
         } else {
-            answer.put("status", "400 Bad Request");
-            answer.put("result", "error");
+            answer.put("status", new HttpStatus().getBadRequest());
         }
         return answer.toString();
     }
 
     @RequestMapping(path = "/update", method = RequestMethod.POST, produces = "application/json", consumes = "application/json")
-    public String updateUser(@RequestBody ObjUser body) {
+    public String updateUser(@RequestBody ObjUser body, HttpSession httpSession) {
         final JSONObject answer = new JSONObject();
-        accountService.update(body, new AccountService.Callback() {
+        accountService.update(body, new AccountService.CallbackLogin() {
             @Override
-            public void onSuccess() {
-                answer.put("status", "200 OK");
-                answer.put("result", "success");
+            public void onSuccess(String status, ObjUser objUser) {
+                if(body.getSessionkey() != null){
+                    httpSession.setAttribute(body.getSessionkey(), objUser);
+                }
+                answer.put("status", status);
             }
 
             @Override
-            public void onError() {
-                answer.put("status", "200 OK");
-                answer.put("result", "error");
+            public void onError(String status) {
+                answer.put("status", status);
+            }
+        });
+        return answer.toString();
+    }
+
+    @RequestMapping(path = "/changepass", method = RequestMethod.POST, produces = "application/json", consumes = "application/json")
+    public String changeUserPass(@RequestBody ArrayList<ObjUser> body, HttpSession httpSession) {
+        final JSONObject answer = new JSONObject();
+        final String sessionKey = body.get(0).getSessionkey();
+
+        System.out.println(body.get(0));
+        System.out.println(body.get(1));
+
+        accountService.changePass(body.get(0), body.get(1), new AccountService.CallbackLogin() {
+            @Override
+            public void onSuccess(String status, ObjUser objUser) {
+                if(sessionKey != null){
+                    httpSession.setAttribute(sessionKey, objUser);
+                }
+                answer.put("status", status);
+            }
+
+            @Override
+            public void onError(String status) {
+
             }
         });
         return answer.toString();
@@ -122,11 +135,9 @@ public class UserController {
         final String key = objKey.getKey();
         if (key != null) {
             httpSession.removeAttribute(key);
-            answer.put("status", "200 OK");
-            answer.put("result", "success");
+            answer.put("status", new HttpStatus().getOk());
         } else {
-            answer.put("status", "400 Bad Request");
-            answer.put("result", "error");
+            answer.put("status", new HttpStatus().getBadRequest());
         }
         return answer.toString();
     }

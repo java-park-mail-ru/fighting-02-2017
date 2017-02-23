@@ -1,4 +1,4 @@
-package sample.controllers;
+package services;
 
 import objects.HttpStatus;
 import objects.ObjUser;
@@ -25,7 +25,7 @@ public class AccountService {
         void onError(String status);
     }
 
-    public interface CallbackLogin {
+    public interface CallbackUser {
         void onSuccess(String status, ObjUser objUser);
 
         void onError(String status);
@@ -38,27 +38,27 @@ public class AccountService {
         IDGEN = new AtomicLong(0);
     }
 
-    void register(ObjUser objUser, Callback callback) {
+    public void register(ObjUser objUser, Callback callback) {
         objUser.setId(String.valueOf(IDGEN.getAndIncrement()));
         if (db.put(objUser.getLogin(), objUser) == null) {
-            callback.onSuccess(new HttpStatus().getCreated());
+            callback.onSuccess(new HttpStatus().getOk());
         } else {
             IDGEN.getAndDecrement();
             callback.onError(new HttpStatus().getForbidden());
         }
     }
 
-    void login(ObjUser objUser, CallbackLogin callbackLogin) {
+    public void login(ObjUser objUser, CallbackUser callbackUser) {
         final String login = objUser.getLogin();
         final String password = objUser.getPassword();
         if (db.get(login) != null && db.get(login).getPassword().equals(password)) {
-            callbackLogin.onSuccess(new HttpStatus().getOk(), db.get(login));
+            callbackUser.onSuccess(new HttpStatus().getOk(), db.get(login));
         } else {
-            callbackLogin.onError(new HttpStatus().getNotFound());
+            callbackUser.onError(new HttpStatus().getNotFound());
         }
     }
 
-    void update(ObjUser newObjUser, CallbackLogin callback) {
+    public void update(ObjUser newObjUser, CallbackUser callbackUser) {
         final String login = newObjUser.getLogin();
         if (login != null && db.get(login) != null) {
             final ObjUser currObjUser = db.get(login);
@@ -74,20 +74,20 @@ public class AccountService {
                     }
                 } catch (IllegalAccessException e) {
                     e.printStackTrace();
-                    callback.onError(new HttpStatus().getBadRequest());
+                    callbackUser.onError(new HttpStatus().getBadRequest());
                 }
             }
             if (db.replace(login, currObjUser) != null) {
-                callback.onSuccess(new HttpStatus().getOk(), currObjUser);
+                callbackUser.onSuccess(new HttpStatus().getOk(), currObjUser);
             } else {
-                callback.onError(new HttpStatus().getBadRequest());
+                callbackUser.onError(new HttpStatus().getBadRequest());
             }
         } else {
-            callback.onError(new HttpStatus().getBadRequest());
+            callbackUser.onError(new HttpStatus().getBadRequest());
         }
     }
 
-    void changePass(ObjUser prevUser, ObjUser newUser, CallbackLogin callback) {
+    public void changePass(ObjUser prevUser, ObjUser newUser, CallbackUser callbackUser) {
         final String login = prevUser.getLogin();
 
         if (login != null && db.get(login) != null) {
@@ -95,15 +95,15 @@ public class AccountService {
             if (currObjUser.getPassword().equals(prevUser.getPassword())) {
                 currObjUser.setPassword(newUser.getPassword());
                 if (db.replace(login, currObjUser) != null) {
-                    callback.onSuccess(new HttpStatus().getOk(), currObjUser);
+                    callbackUser.onSuccess(new HttpStatus().getOk(), currObjUser);
                 } else {
-                    callback.onError(new HttpStatus().getBadRequest());
+                    callbackUser.onError(new HttpStatus().getBadRequest());
                 }
             } else {
-                callback.onError(new HttpStatus().getForbidden());
+                callbackUser.onError(new HttpStatus().getForbidden());
             }
         } else {
-            callback.onError(new HttpStatus().getBadRequest());
+            callbackUser.onError(new HttpStatus().getBadRequest());
         }
     }
 }

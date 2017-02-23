@@ -15,7 +15,7 @@ public class ObjSessionKey {
     }
 
     @JsonCreator
-    public ObjSessionKey(@JsonProperty("key") String key) {
+    public ObjSessionKey(@JsonProperty("sessionkey") String key) {
         this.key = key;
     }
 

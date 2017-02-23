@@ -3,12 +3,12 @@ package sample.controllers;
 import objects.HttpStatus;
 import objects.ObjSessionKey;
 import objects.ObjUser;
-import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
+import services.AccountService;
 
 import javax.servlet.http.HttpSession;
 import java.util.ArrayList;
@@ -31,12 +31,12 @@ public class UserController {
     @RequestMapping(path = "/login", method = RequestMethod.POST, produces = "application/json", consumes = "application/json")
     public String loginUser(@RequestBody ObjUser body, HttpSession httpsession) {
         final JSONObject answer = new JSONObject();
-        accountService.login(body, new AccountService.CallbackLogin() {
+        accountService.login(body, new AccountService.CallbackUser() {
             @Override
             public void onSuccess(String status, ObjUser objUser) {
                 final long httpSessionId = IDGEN.getAndIncrement();
                 answer.put("status", status);
-                answer.put("user_key", String.valueOf(httpSessionId));
+                answer.put("sessionkey", String.valueOf(httpSessionId));
                 answer.put("user", objUser.getJson());
                 httpsession.setAttribute(String.valueOf(httpSessionId), objUser);
             }
@@ -87,7 +87,7 @@ public class UserController {
     @RequestMapping(path = "/update", method = RequestMethod.POST, produces = "application/json", consumes = "application/json")
     public String updateUser(@RequestBody ObjUser body, HttpSession httpSession) {
         final JSONObject answer = new JSONObject();
-        accountService.update(body, new AccountService.CallbackLogin() {
+        accountService.update(body, new AccountService.CallbackUser() {
             @Override
             public void onSuccess(String status, ObjUser objUser) {
                 if(body.getSessionkey() != null){
@@ -112,7 +112,7 @@ public class UserController {
         System.out.println(body.get(0));
         System.out.println(body.get(1));
 
-        accountService.changePass(body.get(0), body.get(1), new AccountService.CallbackLogin() {
+        accountService.changePass(body.get(0), body.get(1), new AccountService.CallbackUser() {
             @Override
             public void onSuccess(String status, ObjUser objUser) {
                 if(sessionKey != null){
@@ -123,7 +123,7 @@ public class UserController {
 
             @Override
             public void onError(String status) {
-
+                answer.put("status", status);
             }
         });
         return answer.toString();

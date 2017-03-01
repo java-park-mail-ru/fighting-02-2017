@@ -11,10 +11,9 @@ import org.json.JSONObject;
 public class ObjUser {
     private String id;
     private String login;
+    private String newlogin;
     private String password;
-    private String email;
-    private String nickname;
-    private String sessionkey;
+    private String newpassword;
 
     public ObjUser() {
 
@@ -24,18 +23,14 @@ public class ObjUser {
     public ObjUser(
             @JsonProperty("id") String id,
             @JsonProperty("login") String login,
+            @JsonProperty("newlogin") String newlogin,
             @JsonProperty("password") String password,
-            @JsonProperty("nickname") String nickname,
-            @JsonProperty("sessionkey") String sessionkey,
-            @JsonProperty("email") String email) {
+            @JsonProperty("newpassword") String newpassword) {
         this.id = id;
         this.login = login;
+        this.newlogin = newlogin;
         this.password = password;
-        this.nickname = nickname;
-        this.email = email;
-        this.sessionkey = sessionkey;
-
-        //System.out.println(this.id + ' ' + this.login + ' ' + this.password + ' ' + this.nickname + ' ' + this.email);
+        this.newpassword = newpassword;
     }
 
     public String getId() {
@@ -46,44 +41,36 @@ public class ObjUser {
         return login;
     }
 
+    public String getNewlogin() {
+        return newlogin;
+    }
+
     public String getPassword() {
         return password;
     }
 
-    public String getNickname() {
-        return nickname;
-    }
-
-    public String getEmail() {
-        return email;
+    public String getNewpassword() {
+        return newpassword;
     }
 
     public void setId(String id) {
         this.id = id;
     }
 
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
     public void setLogin(String login) {
         this.login = login;
-    }
-
-    public void setNickname(String nickname) {
-        this.nickname = nickname;
     }
 
     public void setPassword(String password) {
         this.password = password;
     }
 
-    public String getSessionkey() {
-        return sessionkey;
+    public void setNewpassword(String newpassword) {
+        this.newpassword = newpassword;
     }
 
-    public void setSessionkey(String sessionkey) {
-        this.sessionkey = sessionkey;
+    public void setNewlogin(String newlogin) {
+        this.newlogin = newlogin;
     }
 
     public JSONObject getJson() {
@@ -91,9 +78,6 @@ public class ObjUser {
         jsonObject.put("id", id);
         jsonObject.put("login", login);
         jsonObject.put("password", password);
-        jsonObject.put("nickname", nickname);
-        jsonObject.put("email", email);
-        jsonObject.put("sessionkey", sessionkey);
         return jsonObject;
     }
 

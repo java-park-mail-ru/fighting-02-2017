@@ -1,13 +1,9 @@
 package sample.controllers;
 
 import objects.HttpStatus;
-import objects.ObjSessionKey;
 import objects.ObjUser;
 import org.json.JSONObject;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import services.AccountService;
 
 import javax.servlet.http.HttpSession;
@@ -21,24 +17,21 @@ import java.util.concurrent.atomic.AtomicLong;
 @RequestMapping("/api/user")
 public class UserController {
     private final AccountService accountService;
-    private AtomicLong IDGEN;
+    private final String SESSIONKEY = "user";
 
     public UserController() {
         this.accountService = new AccountService();
-        IDGEN = new AtomicLong(0);
     }
 
     @RequestMapping(path = "/login", method = RequestMethod.POST, produces = "application/json", consumes = "application/json")
-    public String loginUser(@RequestBody ObjUser body, HttpSession httpsession) {
+    public String loginUser(@RequestBody ObjUser body, HttpSession httpSession) {
         final JSONObject answer = new JSONObject();
-        accountService.login(body, new AccountService.CallbackUser() {
+        accountService.login(body, new AccountService.CallbackWithUser() {
             @Override
             public void onSuccess(String status, ObjUser objUser) {
-                final long httpSessionId = IDGEN.getAndIncrement();
                 answer.put("status", status);
-                answer.put("sessionkey", String.valueOf(httpSessionId));
                 answer.put("user", objUser.getJson());
-                httpsession.setAttribute(String.valueOf(httpSessionId), objUser);
+                httpSession.setAttribute(SESSIONKEY, objUser);
             }
 
             @Override
@@ -67,19 +60,14 @@ public class UserController {
     }
 
     @RequestMapping(path = "/get", method = RequestMethod.POST, produces = "application/json", consumes = "application/json")
-    public String getUser(@RequestBody ObjSessionKey objKey, HttpSession httpSession) {
+    public String getUser(HttpSession httpSession) {
         final JSONObject answer = new JSONObject();
-        final String key = objKey.getKey();
-
-        if (key != null) {
-            if (httpSession.getAttribute(key) != null) {
-                answer.put("status", new HttpStatus().getOk());
-                answer.put("user", ((ObjUser) httpSession.getAttribute(key)).getJson());
-            } else {
-                answer.put("status", new HttpStatus().getUnauthorized());
-            }
+        final ObjUser objUser = (ObjUser) httpSession.getAttribute(SESSIONKEY);
+        if (objUser != null) {
+            answer.put("status", new HttpStatus().getOk());
+            answer.put("user", objUser.getJson());
         } else {
-            answer.put("status", new HttpStatus().getBadRequest());
+            answer.put("status", new HttpStatus().getUnauthorized());
         }
         return answer.toString();
     }
@@ -87,54 +75,54 @@ public class UserController {
     @RequestMapping(path = "/update", method = RequestMethod.POST, produces = "application/json", consumes = "application/json")
     public String updateUser(@RequestBody ObjUser body, HttpSession httpSession) {
         final JSONObject answer = new JSONObject();
-        accountService.update(body, new AccountService.CallbackUser() {
-            @Override
-            public void onSuccess(String status, ObjUser objUser) {
-                if(body.getSessionkey() != null){
-                    httpSession.setAttribute(body.getSessionkey(), objUser);
+        if (httpSession.getAttribute(SESSIONKEY) != null) {
+            accountService.update(body, new AccountService.CallbackWithUser() {
+                @Override
+                public void onSuccess(String status, ObjUser objUser) {
+                    httpSession.removeAttribute(SESSIONKEY);
+                    httpSession.setAttribute(SESSIONKEY, objUser);
+                    answer.put("status", status);
                 }
-                answer.put("status", status);
-            }
 
-            @Override
-            public void onError(String status) {
-                answer.put("status", status);
-            }
-        });
+                @Override
+                public void onError(String status) {
+                    answer.put("status", status);
+                }
+            });
+        } else {
+            answer.put("status", new HttpStatus().getUnauthorized());
+        }
         return answer.toString();
     }
 
     @RequestMapping(path = "/changepass", method = RequestMethod.POST, produces = "application/json", consumes = "application/json")
-    public String changeUserPass(@RequestBody ArrayList<ObjUser> body, HttpSession httpSession) {
+    public String changeUserPass(@RequestBody ObjUser body, HttpSession httpSession) {
         final JSONObject answer = new JSONObject();
-        final String sessionKey = body.get(0).getSessionkey();
-
-        System.out.println(body.get(0));
-        System.out.println(body.get(1));
-
-        accountService.changePass(body.get(0), body.get(1), new AccountService.CallbackUser() {
-            @Override
-            public void onSuccess(String status, ObjUser objUser) {
-                if(sessionKey != null){
-                    httpSession.setAttribute(sessionKey, objUser);
+        if (httpSession.getAttribute(SESSIONKEY) != null) {
+            accountService.changePass(body, new AccountService.CallbackWithUser() {
+                @Override
+                public void onSuccess(String status, ObjUser objUser) {
+                    httpSession.removeAttribute(SESSIONKEY);
+                    httpSession.setAttribute(SESSIONKEY, objUser);
+                    answer.put("status", status);
                 }
-                answer.put("status", status);
-            }
 
-            @Override
-            public void onError(String status) {
-                answer.put("status", status);
-            }
-        });
+                @Override
+                public void onError(String status) {
+                    answer.put("status", status);
+                }
+            });
+        } else {
+            answer.put("status", new HttpStatus().getUnauthorized());
+        }
         return answer.toString();
     }
 
     @RequestMapping(path = "/logout", method = RequestMethod.POST, produces = "application/json", consumes = "application/json")
-    public String logoutUser(@RequestBody ObjSessionKey objKey, HttpSession httpSession) {
+    public String logoutUser(HttpSession httpSession) {
         final JSONObject answer = new JSONObject();
-        final String key = objKey.getKey();
-        if (key != null) {
-            httpSession.removeAttribute(key);
+        if (httpSession.getAttribute(SESSIONKEY) != null) {
+            httpSession.removeAttribute(SESSIONKEY);
             answer.put("status", new HttpStatus().getOk());
         } else {
             answer.put("status", new HttpStatus().getBadRequest());

@@ -5,10 +5,6 @@ package objects;
  */
 public class HttpStatus {
 
-    public HttpStatus(){
-
-    }
-
     public String getOk(){
         return "200 OK";
     }

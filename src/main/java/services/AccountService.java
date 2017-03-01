@@ -25,7 +25,7 @@ public class AccountService {
         void onError(String status);
     }
 
-    public interface CallbackUser {
+    public interface CallbackWithUser {
         void onSuccess(String status, ObjUser objUser);
 
         void onError(String status);
@@ -48,62 +48,50 @@ public class AccountService {
         }
     }
 
-    public void login(ObjUser objUser, CallbackUser callbackUser) {
+    public void login(ObjUser objUser, CallbackWithUser callbackWithUser) {
         final String login = objUser.getLogin();
         final String password = objUser.getPassword();
         if (db.get(login) != null && db.get(login).getPassword().equals(password)) {
-            callbackUser.onSuccess(new HttpStatus().getOk(), db.get(login));
+            callbackWithUser.onSuccess(new HttpStatus().getOk(), db.get(login));
         } else {
-            callbackUser.onError(new HttpStatus().getNotFound());
+            callbackWithUser.onError(new HttpStatus().getNotFound());
         }
     }
 
-    public void update(ObjUser newObjUser, CallbackUser callbackUser) {
+    public void update(ObjUser newObjUser, CallbackWithUser callbackWithUser) {
         final String login = newObjUser.getLogin();
-        if (login != null && db.get(login) != null) {
-            final ObjUser currObjUser = db.get(login);
-            final Field[] currFields = currObjUser.getClass().getDeclaredFields();
-            final Field[] newFields = newObjUser.getClass().getDeclaredFields();
-            for (int i = 0; i < newFields.length; i++) {
-                final Field newField = newFields[i];
-                newField.setAccessible(true);
-                try {
-                    if (newField.get(newObjUser) != null && !newField.getName().equals("password")) {
-                        currFields[i].setAccessible(true);
-                        currFields[i].set(currObjUser, newField.get(newObjUser));
-                    }
-                } catch (IllegalAccessException e) {
-                    e.printStackTrace();
-                    callbackUser.onError(new HttpStatus().getBadRequest());
-                }
-            }
-            if (db.replace(login, currObjUser) != null) {
-                callbackUser.onSuccess(new HttpStatus().getOk(), currObjUser);
+        final String newlogin = newObjUser.getNewlogin();
+        if (login != null && newlogin != null && db.get(login) != null) {
+            final ObjUser objUser = db.get(login);
+            objUser.setLogin(newlogin);
+            if (db.remove(login) != null && db.put(newlogin, objUser) == null) {
+                callbackWithUser.onSuccess(new HttpStatus().getOk(), objUser);
             } else {
-                callbackUser.onError(new HttpStatus().getBadRequest());
+                callbackWithUser.onError(new HttpStatus().getBadRequest());
             }
         } else {
-            callbackUser.onError(new HttpStatus().getBadRequest());
+            callbackWithUser.onError(new HttpStatus().getBadRequest());
         }
     }
 
-    public void changePass(ObjUser prevUser, ObjUser newUser, CallbackUser callbackUser) {
-        final String login = prevUser.getLogin();
-
-        if (login != null && db.get(login) != null) {
+    public void changePass(ObjUser objUser, CallbackWithUser callbackWithUser) {
+        final String login = objUser.getLogin();
+        final String password = objUser.getPassword();
+        final String newpassword = objUser.getNewpassword();
+        if (login != null && db.get(login) != null && password != null && newpassword != null) {
             final ObjUser currObjUser = db.get(login);
-            if (currObjUser.getPassword().equals(prevUser.getPassword())) {
-                currObjUser.setPassword(newUser.getPassword());
+            if (currObjUser.getPassword().equals(password)) {
+                currObjUser.setPassword(newpassword);
                 if (db.replace(login, currObjUser) != null) {
-                    callbackUser.onSuccess(new HttpStatus().getOk(), currObjUser);
+                    callbackWithUser.onSuccess(new HttpStatus().getOk(), currObjUser);
                 } else {
-                    callbackUser.onError(new HttpStatus().getBadRequest());
+                    callbackWithUser.onError(new HttpStatus().getBadRequest());
                 }
             } else {
-                callbackUser.onError(new HttpStatus().getForbidden());
+                callbackWithUser.onError(new HttpStatus().getForbidden());
             }
         } else {
-            callbackUser.onError(new HttpStatus().getBadRequest());
+            callbackWithUser.onError(new HttpStatus().getBadRequest());
         }
     }
 }

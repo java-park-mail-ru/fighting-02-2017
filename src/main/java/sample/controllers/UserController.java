@@ -59,7 +59,7 @@ public class UserController {
         return answer.toString();
     }
 
-    @RequestMapping(path = "/get", method = RequestMethod.POST, produces = "application/json", consumes = "application/json")
+    @RequestMapping(path = "/get", method = RequestMethod.GET, produces = "application/json")
     public String getUser(HttpSession httpSession) {
         final JSONObject answer = new JSONObject();
         final ObjUser objUser = (ObjUser) httpSession.getAttribute(SESSIONKEY);

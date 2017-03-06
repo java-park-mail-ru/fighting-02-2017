@@ -3,6 +3,7 @@ package services;
 import objects.HttpStatus;
 import objects.ObjUser;
 import org.eclipse.jetty.util.Fields;
+import org.json.JSONArray;
 import org.springframework.stereotype.Service;
 
 import java.lang.reflect.Field;
@@ -93,6 +94,14 @@ public class AccountService {
         } else {
             callbackWithUser.onError(new HttpStatus().getBadRequest());
         }
+    }
+
+    public JSONArray getLeaders(){
+        final JSONArray jsonArray = new JSONArray();
+        for(Map.Entry<String, ObjUser> entry : db.entrySet()) {
+            jsonArray.put(entry.getValue().getJson());
+        }
+        return jsonArray;
     }
 }
 

@@ -14,6 +14,7 @@ public class ObjUser {
     private String newlogin;
     private String password;
     private String newpassword;
+    private Integer rating;
 
     public ObjUser() {
 
@@ -31,6 +32,11 @@ public class ObjUser {
         this.newlogin = newlogin;
         this.password = password;
         this.newpassword = newpassword;
+        this.rating = (int) (Math.random() * 1000);
+    }
+
+    public Integer getRating() {
+        return rating;
     }
 
     public String getId() {
@@ -57,6 +63,10 @@ public class ObjUser {
         this.id = id;
     }
 
+    public void setRating(Integer rating) {
+        this.rating = rating;
+    }
+
     public void setLogin(String login) {
         this.login = login;
     }
@@ -77,7 +87,8 @@ public class ObjUser {
         final JSONObject jsonObject = new JSONObject();
         jsonObject.put("id", id);
         jsonObject.put("login", login);
-        jsonObject.put("password", password);
+        jsonObject.put("rating", rating);
+        //jsonObject.put("password", password);
         return jsonObject;
     }
 

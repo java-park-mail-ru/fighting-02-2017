@@ -6,13 +6,14 @@ import org.json.JSONObject;
 import org.springframework.web.bind.annotation.*;
 import services.AccountService;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import java.util.ArrayList;
-import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * Created by Denis on 21.02.2017.
  */
+
 @RestController
 @RequestMapping("/api/user")
 public class UserController {
@@ -23,8 +24,11 @@ public class UserController {
         this.accountService = new AccountService();
     }
 
+    @CrossOrigin(origins = "http://localhost:3000", maxAge = 3600)
     @RequestMapping(path = "/login", method = RequestMethod.POST, produces = "application/json", consumes = "application/json")
-    public String loginUser(@RequestBody ObjUser body, HttpSession httpSession) {
+    public String loginUser(@RequestBody ObjUser body, HttpSession httpSession,
+                            @RequestHeader(value="Origin") String domain,
+                            HttpServletResponse httpServletResponse) {
         final JSONObject answer = new JSONObject();
         accountService.login(body, new AccountService.CallbackWithUser() {
             @Override
@@ -42,8 +46,12 @@ public class UserController {
         return answer.toString();
     }
 
-    @RequestMapping(path = "/signup", method = RequestMethod.POST, produces = "application/json", consumes = "application/json")
-    public String registerUser(@RequestBody ObjUser body) {
+    @CrossOrigin(origins = "http://localhost:3000", maxAge = 3600)
+    @RequestMapping(path = "/signup", method = RequestMethod.POST, produces = "application/json",
+            consumes = "application/json")
+    public String registerUser(@RequestBody ObjUser body,
+                               @RequestHeader(value="Origin") String domain,
+                               HttpServletResponse httpServletResponse) {
         final JSONObject answer = new JSONObject();
         accountService.register(body, new AccountService.Callback() {
             @Override
@@ -59,8 +67,11 @@ public class UserController {
         return answer.toString();
     }
 
+    @CrossOrigin(origins = "http://localhost:3000", maxAge = 3600)
     @RequestMapping(path = "/get", method = RequestMethod.GET, produces = "application/json")
-    public String getUser(HttpSession httpSession) {
+    public String getUser(@RequestHeader(value="Origin") String domain,
+                          HttpSession httpSession,
+                          HttpServletResponse httpServletResponse) {
         final JSONObject answer = new JSONObject();
         final ObjUser objUser = (ObjUser) httpSession.getAttribute(SESSIONKEY);
         if (objUser != null) {
@@ -69,11 +80,16 @@ public class UserController {
         } else {
             answer.put("status", new HttpStatus().getUnauthorized());
         }
+
         return answer.toString();
     }
 
-    @RequestMapping(path = "/update", method = RequestMethod.POST, produces = "application/json", consumes = "application/json")
-    public String updateUser(@RequestBody ObjUser body, HttpSession httpSession) {
+    @CrossOrigin(origins = "http://localhost:3000", maxAge = 3600)
+    @RequestMapping(path = "/update", method = RequestMethod.POST, produces = "application/json",
+            consumes = "application/json")
+    public String updateUser(@RequestBody ObjUser body,
+                             @RequestHeader(value="Origin") String domain,
+                             HttpSession httpSession) {
         final JSONObject answer = new JSONObject();
         if (httpSession.getAttribute(SESSIONKEY) != null) {
             accountService.update(body, new AccountService.CallbackWithUser() {
@@ -95,8 +111,11 @@ public class UserController {
         return answer.toString();
     }
 
+    @CrossOrigin(origins = "http://localhost:3000", maxAge = 3600)
     @RequestMapping(path = "/changepass", method = RequestMethod.POST, produces = "application/json", consumes = "application/json")
-    public String changeUserPass(@RequestBody ObjUser body, HttpSession httpSession) {
+    public String changeUserPass(@RequestBody ObjUser body,
+                                 @RequestHeader(value="Origin") String domain,
+                                 HttpSession httpSession, HttpServletResponse httpResponse) {
         final JSONObject answer = new JSONObject();
         if (httpSession.getAttribute(SESSIONKEY) != null) {
             accountService.changePass(body, new AccountService.CallbackWithUser() {
@@ -118,8 +137,10 @@ public class UserController {
         return answer.toString();
     }
 
+    @CrossOrigin(origins = "http://localhost:3000", maxAge = 3600)
     @RequestMapping(path = "/logout", method = RequestMethod.POST, produces = "application/json", consumes = "application/json")
-    public String logoutUser(HttpSession httpSession) {
+    public String logoutUser( @RequestHeader(value="Origin") String domain,
+                              HttpSession httpSession, HttpServletResponse httpResponse) {
         final JSONObject answer = new JSONObject();
         if (httpSession.getAttribute(SESSIONKEY) != null) {
             httpSession.removeAttribute(SESSIONKEY);

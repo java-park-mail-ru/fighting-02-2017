@@ -4,11 +4,9 @@ import objects.HttpStatus;
 import objects.ObjUser;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.web.bind.annotation.*;
-import services.AccountService;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import services.UserService;
 import javax.servlet.http.HttpSession;
 
 /**
@@ -18,21 +16,19 @@ import javax.servlet.http.HttpSession;
 @RestController
 @RequestMapping("/api/user")
 public class UserController {
-    private final AccountService accountService;
+    private final UserService userService;
     private final String SESSIONKEY = "user";
     private final String URL = "https://tp-front-end-js-game.herokuapp.com";
 
-    public UserController() {
-        this.accountService = new AccountService();
+    public UserController(JdbcTemplate jdbcTemplate) {
+        this.userService = new UserService(jdbcTemplate);
     }
 
     @CrossOrigin(origins = URL, maxAge = 3600)
     @RequestMapping(path = "/login", method = RequestMethod.POST, produces = "application/json", consumes = "application/json")
-    public String loginUser(@RequestBody ObjUser body, HttpSession httpSession,
-                            @RequestHeader(value = "Origin") String domain,
-                            HttpServletResponse httpServletResponse) {
+    public String loginUser(@RequestBody ObjUser body, HttpSession httpSession) {
         final JSONObject answer = new JSONObject();
-        accountService.login(body, new AccountService.CallbackWithUser() {
+        userService.login(body, new UserService.CallbackWithUser() {
             @Override
             public void onSuccess(String status, ObjUser objUser) {
                 answer.put("status", status);
@@ -51,11 +47,9 @@ public class UserController {
     @CrossOrigin(origins = URL, maxAge = 3600)
     @RequestMapping(path = "/signup", method = RequestMethod.POST, produces = "application/json",
             consumes = "application/json")
-    public String registerUser(@RequestBody ObjUser body,
-                               @RequestHeader(value = "Origin") String domain,
-                               HttpServletResponse httpServletResponse) {
+    public String registerUser(@RequestBody ObjUser body) {
         final JSONObject answer = new JSONObject();
-        accountService.register(body, new AccountService.Callback() {
+        userService.register(body, new UserService.Callback() {
             @Override
             public void onSuccess(String status) {
                 answer.put("status", status);
@@ -71,9 +65,7 @@ public class UserController {
 
     @CrossOrigin(origins = URL, maxAge = 3600)
     @RequestMapping(path = "/get", method = RequestMethod.GET, produces = "application/json")
-    public String getUser(@RequestHeader(value = "Origin") String domain,
-                          HttpSession httpSession,
-                          HttpServletResponse httpServletResponse) {
+    public String getUser(HttpSession httpSession) {
 
         final JSONObject answer = new JSONObject();
         final ObjUser objUser = (ObjUser) httpSession.getAttribute(SESSIONKEY);
@@ -90,11 +82,10 @@ public class UserController {
     @RequestMapping(path = "/update", method = RequestMethod.POST, produces = "application/json",
             consumes = "application/json")
     public String updateUser(@RequestBody ObjUser body,
-                             @RequestHeader(value = "Origin") String domain,
                              HttpSession httpSession) {
         final JSONObject answer = new JSONObject();
         if (httpSession.getAttribute(SESSIONKEY) != null) {
-            accountService.update(body, new AccountService.CallbackWithUser() {
+            userService.update(body, new UserService.CallbackWithUser() {
                 @Override
                 public void onSuccess(String status, ObjUser objUser) {
                     httpSession.removeAttribute(SESSIONKEY);
@@ -116,11 +107,10 @@ public class UserController {
     @CrossOrigin(origins = URL, maxAge = 3600)
     @RequestMapping(path = "/changepass", method = RequestMethod.POST, produces = "application/json", consumes = "application/json")
     public String changeUserPass(@RequestBody ObjUser body,
-                                 @RequestHeader(value = "Origin") String domain,
-                                 HttpSession httpSession, HttpServletResponse httpResponse) {
+                                 HttpSession httpSession) {
         final JSONObject answer = new JSONObject();
         if (httpSession.getAttribute(SESSIONKEY) != null) {
-            accountService.changePass(body, new AccountService.CallbackWithUser() {
+            userService.changePass(body, new UserService.CallbackWithUser() {
                 @Override
                 public void onSuccess(String status, ObjUser objUser) {
                     httpSession.removeAttribute(SESSIONKEY);
@@ -141,8 +131,7 @@ public class UserController {
 
     @CrossOrigin(origins = URL, maxAge = 3600)
     @RequestMapping(path = "/logout", method = RequestMethod.GET, produces = "application/json")
-    public String logoutUser(@RequestHeader(value = "Origin") String domain,
-                             HttpSession httpSession, HttpServletResponse httpResponse) {
+    public String logoutUser(HttpSession httpSession) {
         final JSONObject answer = new JSONObject();
         if (httpSession.getAttribute(SESSIONKEY) != null) {
             httpSession.removeAttribute(SESSIONKEY);
@@ -155,11 +144,10 @@ public class UserController {
 
     @CrossOrigin(origins = URL, maxAge = 3600)
     @RequestMapping(path = "/leaders", method = RequestMethod.GET, produces = "application/json")
-    public String getLeaders(@RequestHeader(value = "Origin") String domain,
-                             HttpSession httpSession, HttpServletResponse httpResponse) {
+    public String getLeaders() {
         final JSONObject answer = new JSONObject();
         try {
-            answer.put("leaders", accountService.getLeaders());
+            answer.put("leaders", userService.getLeaders());
             answer.put("status", new HttpStatus().getOk());
         } catch (JSONException e) {
             answer.put("status", new HttpStatus().getBadRequest());

@@ -11,7 +11,7 @@ import java.util.Objects;
  * Created by Denis on 21.02.2017.
  */
 public class ObjUser {
-    private String id;
+    private Integer id;
     private String login;
     private String newlogin;
     private String password;
@@ -24,24 +24,25 @@ public class ObjUser {
 
     @JsonCreator
     public ObjUser(
-            @JsonProperty("id") String id,
+            @JsonProperty("id") Integer id,
             @JsonProperty("login") String login,
             @JsonProperty("newlogin") String newlogin,
             @JsonProperty("password") String password,
-            @JsonProperty("newpassword") String newpassword) {
+            @JsonProperty("newpassword") String newpassword,
+            @JsonProperty("rating") Integer rating){
         this.id = id;
         this.login = login;
         this.newlogin = newlogin;
         this.password = password;
         this.newpassword = newpassword;
-        this.rating = (int) (Math.random() * 1000);
+        this.rating = rating;
     }
 
     public Integer getRating() {
         return rating;
     }
 
-    public String getId() {
+    public Integer getId() {
         return id;
     }
 
@@ -61,7 +62,7 @@ public class ObjUser {
         return newpassword;
     }
 
-    public void setId(String id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 

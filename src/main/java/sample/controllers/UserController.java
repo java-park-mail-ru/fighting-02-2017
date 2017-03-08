@@ -7,6 +7,7 @@ import org.json.JSONObject;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.web.bind.annotation.*;
 import services.UserService;
+
 import javax.servlet.http.HttpSession;
 
 /**
@@ -19,6 +20,7 @@ public class UserController {
     private final UserService userService;
     private final String SESSIONKEY = "user";
     private final String URL = "https://tp-front-end-js-game.herokuapp.com";
+    //private final String URL = "http://localhost:3000";
 
     public UserController(JdbcTemplate jdbcTemplate) {
         this.userService = new UserService(jdbcTemplate);
@@ -105,6 +107,35 @@ public class UserController {
     }
 
     @CrossOrigin(origins = URL, maxAge = 3600)
+    @RequestMapping(path = "/updateinfo", method = RequestMethod.POST, produces = "application/json",
+            consumes = "application/json")
+    public String updateUserInfo(@RequestBody ObjUser body,
+                             HttpSession httpSession) {
+        final JSONObject answer = new JSONObject();
+        if (httpSession.getAttribute(SESSIONKEY) != null) {
+            userService.updateInfo(body, new UserService.CallbackWithUser() {
+                @Override
+                public void onSuccess(String status, ObjUser objUser) {
+                    final ObjUser objUserS = (ObjUser) httpSession.getAttribute(SESSIONKEY);
+                    httpSession.removeAttribute(SESSIONKEY);
+                    objUser.setId(objUserS.getId());
+                    objUser.setPassword(objUserS.getPassword());
+                    httpSession.setAttribute(SESSIONKEY, objUser);
+                    answer.put("status", status);
+                }
+
+                @Override
+                public void onError(String status) {
+                    answer.put("status", status);
+                }
+            });
+        } else {
+            answer.put("status", new HttpStatus().getUnauthorized());
+        }
+        return answer.toString();
+    }
+
+    @CrossOrigin(origins = URL, maxAge = 3600)
     @RequestMapping(path = "/changepass", method = RequestMethod.POST, produces = "application/json", consumes = "application/json")
     public String changeUserPass(@RequestBody ObjUser body,
                                  HttpSession httpSession) {
@@ -113,8 +144,10 @@ public class UserController {
             userService.changePass(body, new UserService.CallbackWithUser() {
                 @Override
                 public void onSuccess(String status, ObjUser objUser) {
+                    final ObjUser objUserS = (ObjUser) httpSession.getAttribute(SESSIONKEY);
                     httpSession.removeAttribute(SESSIONKEY);
-                    httpSession.setAttribute(SESSIONKEY, objUser);
+                    objUserS.setPassword(objUser.getNewpassword());
+                    httpSession.setAttribute(SESSIONKEY, objUserS);
                     answer.put("status", status);
                 }
 

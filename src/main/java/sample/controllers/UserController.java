@@ -20,7 +20,7 @@ import javax.servlet.http.HttpSession;
 public class UserController {
     private final AccountService accountService;
     private final String SESSIONKEY = "user";
-    private final String URL = "http://tp-front-end-js-game.herokuapp.com";
+    private final String URL = "https://tp-front-end-js-game.herokuapp.com";
 
     public UserController() {
         this.accountService = new AccountService();

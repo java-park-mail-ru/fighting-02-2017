@@ -5,6 +5,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.Objects;
+
 /**
  * Created by Denis on 21.02.2017.
  */
@@ -91,7 +93,4 @@ public class ObjUser {
         //jsonObject.put("password", password);
         return jsonObject;
     }
-
 }
-
-

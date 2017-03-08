@@ -20,12 +20,13 @@ import javax.servlet.http.HttpSession;
 public class UserController {
     private final AccountService accountService;
     private final String SESSIONKEY = "user";
+    private final String URL = "http://tp-front-end-js-game.herokuapp.com";
 
     public UserController() {
         this.accountService = new AccountService();
     }
 
-    @CrossOrigin(origins = "http://localhost:3000", maxAge = 3600)
+    @CrossOrigin(origins = URL, maxAge = 3600)
     @RequestMapping(path = "/login", method = RequestMethod.POST, produces = "application/json", consumes = "application/json")
     public String loginUser(@RequestBody ObjUser body, HttpSession httpSession,
                             @RequestHeader(value = "Origin") String domain,
@@ -47,7 +48,7 @@ public class UserController {
         return answer.toString();
     }
 
-    @CrossOrigin(origins = "http://localhost:3000", maxAge = 3600)
+    @CrossOrigin(origins = URL, maxAge = 3600)
     @RequestMapping(path = "/signup", method = RequestMethod.POST, produces = "application/json",
             consumes = "application/json")
     public String registerUser(@RequestBody ObjUser body,
@@ -68,7 +69,7 @@ public class UserController {
         return answer.toString();
     }
 
-    @CrossOrigin(origins = "http://localhost:3000", maxAge = 3600)
+    @CrossOrigin(origins = URL, maxAge = 3600)
     @RequestMapping(path = "/get", method = RequestMethod.GET, produces = "application/json")
     public String getUser(@RequestHeader(value = "Origin") String domain,
                           HttpSession httpSession,
@@ -85,7 +86,7 @@ public class UserController {
         return answer.toString();
     }
 
-    @CrossOrigin(origins = "http://localhost:3000", maxAge = 3600)
+    @CrossOrigin(origins = URL, maxAge = 3600)
     @RequestMapping(path = "/update", method = RequestMethod.POST, produces = "application/json",
             consumes = "application/json")
     public String updateUser(@RequestBody ObjUser body,
@@ -112,7 +113,7 @@ public class UserController {
         return answer.toString();
     }
 
-    @CrossOrigin(origins = "http://localhost:3000", maxAge = 3600)
+    @CrossOrigin(origins = URL, maxAge = 3600)
     @RequestMapping(path = "/changepass", method = RequestMethod.POST, produces = "application/json", consumes = "application/json")
     public String changeUserPass(@RequestBody ObjUser body,
                                  @RequestHeader(value = "Origin") String domain,
@@ -138,8 +139,8 @@ public class UserController {
         return answer.toString();
     }
 
-    @CrossOrigin(origins = "http://localhost:3000", maxAge = 3600)
-    @RequestMapping(path = "/logout", method = RequestMethod.POST, produces = "application/json", consumes = "application/json")
+    @CrossOrigin(origins = URL, maxAge = 3600)
+    @RequestMapping(path = "/logout", method = RequestMethod.GET, produces = "application/json")
     public String logoutUser(@RequestHeader(value = "Origin") String domain,
                              HttpSession httpSession, HttpServletResponse httpResponse) {
         final JSONObject answer = new JSONObject();
@@ -152,7 +153,7 @@ public class UserController {
         return answer.toString();
     }
 
-    @CrossOrigin(origins = "http://localhost:3000", maxAge = 3600)
+    @CrossOrigin(origins = URL, maxAge = 3600)
     @RequestMapping(path = "/leaders", method = RequestMethod.GET, produces = "application/json")
     public String getLeaders(@RequestHeader(value = "Origin") String domain,
                              HttpSession httpSession, HttpServletResponse httpResponse) {
@@ -160,7 +161,7 @@ public class UserController {
         try {
             answer.put("leaders", accountService.getLeaders());
             answer.put("status", new HttpStatus().getOk());
-        } catch (JSONException e){
+        } catch (JSONException e) {
             answer.put("status", new HttpStatus().getBadRequest());
         }
         return answer.toString();

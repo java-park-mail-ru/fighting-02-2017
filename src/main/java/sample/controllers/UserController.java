@@ -110,7 +110,7 @@ public class UserController {
     @RequestMapping(path = "/updateinfo", method = RequestMethod.POST, produces = "application/json",
             consumes = "application/json")
     public String updateUserInfo(@RequestBody ObjUser body,
-                             HttpSession httpSession) {
+                                 HttpSession httpSession) {
         final JSONObject answer = new JSONObject();
         if (httpSession.getAttribute(SESSIONKEY) != null) {
             userService.updateInfo(body, new UserService.CallbackWithUser() {

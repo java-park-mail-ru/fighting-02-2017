@@ -41,7 +41,7 @@ public class UserService {
         try {
             int rownum = jdbcTemplate.update(
                     "INSERT INTO " + TABLENAME + " (login,password) VALUES(?,?)",
-                    objUser.getLogin(),
+                    objUser.getLogin().toLowerCase(),
                     objUser.getPassword());
 
             if (rownum == 0) {
@@ -60,7 +60,7 @@ public class UserService {
         try {
             user = jdbcTemplate.queryForObject(SQL,
                     new Object[]{
-                            objUser.getLogin(), objUser.getPassword()}, new UserMapper());
+                            objUser.getLogin().toLowerCase(), objUser.getPassword()}, new UserMapper());
         } catch (Exception e) {
             callbackWithUser.onError(new HttpStatus().getNotFound());
         }

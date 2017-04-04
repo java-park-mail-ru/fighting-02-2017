@@ -6,4 +6,4 @@ application.application.services:
 - postgresql
 branches:
   only:
-  - master
+  - rk2

@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<dataSource name="stepfight@localhost">
+  <database-model serializer="dbm" rdbms="POSTGRES" format-version="4.0">
+    <root id="1"/>
+    <database id="2" parent="1" name="stepfight">
+      <ObjectId>16431</ObjectId>
+      <Current>1</Current>
+      <Visible>1</Visible>
+    </database>
+    <schema id="3" parent="2" name="public">
+      <ObjectId>2200</ObjectId>
+      <IntrospectionTimestamp>2017-04-04.19:26:05.344</IntrospectionTimestamp>
+      <IntrospectionStateNumber>201894</IntrospectionStateNumber>
+      <Current>1</Current>
+      <Visible>1</Visible>
+    </schema>
+    <schema id="4" parent="2" name="pg_catalog">
+      <ObjectId>11</ObjectId>
+    </schema>
+    <schema id="5" parent="2" name="pg_toast">
+      <ObjectId>99</ObjectId>
+    </schema>
+    <schema id="6" parent="2" name="pg_temp_1">
+      <ObjectId>11816</ObjectId>
+    </schema>
+    <schema id="7" parent="2" name="pg_toast_temp_1">
+      <ObjectId>11817</ObjectId>
+    </schema>
+    <schema id="8" parent="2" name="information_schema">
+      <ObjectId>12123</ObjectId>
+    </schema>
+    <sequence id="9" parent="3" name="users_id_seq">
+      <ObjectId>26875</ObjectId>
+      <StateNumber>201893</StateNumber>
+      <SequenceIdentity>1</SequenceIdentity>
+    </sequence>
+    <table id="10" parent="3" name="users">
+      <ObjectId>26877</ObjectId>
+      <StateNumber>201893</StateNumber>
+    </table>
+    <table id="11" parent="3" name="usersdata">
+      <ObjectId>26886</ObjectId>
+      <StateNumber>201894</StateNumber>
+    </table>
+    <column id="12" parent="10" name="id">
+      <Position>1</Position>
+      <DataType>integer|0</DataType>
+      <NotNull>1</NotNull>
+      <StateNumber>201893</StateNumber>
+      <DefaultExpression>nextval(&apos;users_id_seq&apos;::regclass)</DefaultExpression>
+    </column>
+    <column id="13" parent="10" name="login">
+      <Position>2</Position>
+      <DataType>varchar(255)|0</DataType>
+      <NotNull>1</NotNull>
+      <StateNumber>201893</StateNumber>
+    </column>
+    <column id="14" parent="10" name="password">
+      <Position>3</Position>
+      <DataType>varchar(255)|0</DataType>
+      <NotNull>1</NotNull>
+      <StateNumber>201893</StateNumber>
+    </column>
+    <index id="15" parent="10" name="users_pkey">
+      <ObjectId>26884</ObjectId>
+      <ColNames>id</ColNames>
+      <Unique>1</Unique>
+    </index>
+    <key id="16" parent="10" name="users_pkey">
+      <ObjectId>26885</ObjectId>
+      <ColNames>id</ColNames>
+      <UnderlyingIndexName>users_pkey</UnderlyingIndexName>
+      <Primary>1</Primary>
+    </key>
+    <column id="17" parent="11" name="rating">
+      <Position>1</Position>
+      <DataType>integer|0</DataType>
+      <NotNull>1</NotNull>
+      <StateNumber>201894</StateNumber>
+      <DefaultExpression>0</DefaultExpression>
+    </column>
+    <column id="18" parent="11" name="game_count">
+      <Position>2</Position>
+      <DataType>integer|0</DataType>
+      <NotNull>1</NotNull>
+      <StateNumber>201894</StateNumber>
+      <DefaultExpression>0</DefaultExpression>
+    </column>
+    <column id="19" parent="11" name="game_count_win">
+      <Position>3</Position>
+      <DataType>integer|0</DataType>
+      <NotNull>1</NotNull>
+      <StateNumber>201894</StateNumber>
+      <DefaultExpression>0</DefaultExpression>
+    </column>
+    <column id="20" parent="11" name="crystal_green">
+      <Position>4</Position>
+      <DataType>integer|0</DataType>
+      <NotNull>1</NotNull>
+      <StateNumber>201894</StateNumber>
+      <DefaultExpression>0</DefaultExpression>
+    </column>
+    <column id="21" parent="11" name="crystal_red">
+      <Position>5</Position>
+      <DataType>integer|0</DataType>
+      <NotNull>1</NotNull>
+      <StateNumber>201894</StateNumber>
+      <DefaultExpression>0</DefaultExpression>
+    </column>
+    <column id="22" parent="11" name="crystal_blue">
+      <Position>6</Position>
+      <DataType>integer|0</DataType>
+      <NotNull>1</NotNull>
+      <StateNumber>201894</StateNumber>
+      <DefaultExpression>0</DefaultExpression>
+    </column>
+    <column id="23" parent="11" name="crystal_purple">
+      <Position>7</Position>
+      <DataType>integer|0</DataType>
+      <NotNull>1</NotNull>
+      <StateNumber>201894</StateNumber>
+      <DefaultExpression>0</DefaultExpression>
+    </column>
+    <column id="24" parent="11" name="login">
+      <Position>8</Position>
+      <DataType>varchar(255)|0</DataType>
+      <NotNull>1</NotNull>
+      <StateNumber>201894</StateNumber>
+    </column>
+    <index id="25" parent="11" name="usersdata_pkey">
+      <ObjectId>26896</ObjectId>
+      <ColNames>login</ColNames>
+      <Unique>1</Unique>
+    </index>
+    <key id="26" parent="11" name="usersdata_pkey">
+      <ObjectId>26897</ObjectId>
+      <ColNames>login</ColNames>
+      <UnderlyingIndexName>usersdata_pkey</UnderlyingIndexName>
+      <Primary>1</Primary>
+    </key>
+  </database-model>
+</dataSource>

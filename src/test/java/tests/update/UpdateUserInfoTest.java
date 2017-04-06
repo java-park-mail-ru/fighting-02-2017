@@ -102,7 +102,7 @@ public class UpdateUserInfoTest {
                                 .content(json.toString()))
                 .andExpect(jsonPath("status").value("200 OK"));
 
-        json.put("login", userLogin+"lorem");
+        json.put("login", userLogin + "lorem");
         json.put("rating", 5);
         json.put("game_count", 10);
         json.put("game_count_win", 5);

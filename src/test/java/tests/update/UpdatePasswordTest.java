@@ -52,7 +52,6 @@ public class UpdatePasswordTest {
     public void updatePasswordOK() throws Exception {
 
 
-
         json.put("newpassword", faker.internet().password(8, 10));
 
         mockMvc

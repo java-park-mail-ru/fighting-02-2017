@@ -17,7 +17,6 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import sample.Application;
 
-
 import java.util.Locale;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -62,7 +61,6 @@ public class RegistrationTest {
                                 .content(json.toString()))
                 .andExpect(jsonPath("status").value("200 OK"));
     }
-
 
 
     @Test
@@ -114,7 +112,6 @@ public class RegistrationTest {
     public void loginOK() throws Exception {
         {
             signupOK();
-
 
 
             faker = new Faker(new Locale("ru"));

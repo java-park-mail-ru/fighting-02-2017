@@ -1,4 +1,3 @@
-
 package objects;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -15,7 +14,7 @@ import java.util.function.Predicate;
  * Created by Denis on 21.02.2017.
  */
 
-public class ObjUser {
+public class User {
     private Integer id;
     private String login;
     private String newlogin;
@@ -29,12 +28,12 @@ public class ObjUser {
     private Integer crystalRed;
     private Integer crystalPurple;
 
-    public ObjUser() {
+    public User() {
 
     }
 
     @JsonCreator
-    public ObjUser(
+    public User(
             @JsonProperty("id") Integer id,
             @JsonProperty("login") String login,
             @JsonProperty("newlogin") String newlogin,

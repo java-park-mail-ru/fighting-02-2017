@@ -1,4 +1,3 @@
-
 package objects;
 
 import javax.servlet.http.HttpServletResponse;
@@ -12,9 +11,8 @@ public class HttpResponse {
 
     public HttpServletResponse getAccessAllowControlOriginHeaders(HttpServletResponse httpServletResponse,
                                                                   String newDomain) {
-        System.out.print(newDomain);
-        for(String domain : domains){
-            if(domain.equals(newDomain)){
+        for (String domain : domains) {
+            if (domain.equals(newDomain)) {
                 httpServletResponse.addHeader("Access-Control-Allow-Origin", domain);
                 break;
             }

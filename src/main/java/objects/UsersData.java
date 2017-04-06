@@ -7,7 +7,7 @@ import org.json.JSONObject;
 /**
  * Created by andrey on 27.03.17.
  */
-public class ObjUsersData {
+public class UsersData {
     private String login;
     private Integer rating;
     private Integer gameCount;
@@ -17,12 +17,12 @@ public class ObjUsersData {
     private Integer crystalRed;
     private Integer crystalPurple;
 
-    public ObjUsersData() {
+    public UsersData() {
 
     }
 
     @JsonCreator
-    public ObjUsersData(
+    public UsersData(
             @JsonProperty("login") String login,
             @JsonProperty("rating") Integer rating,
             @JsonProperty("game_count") Integer gameCount,

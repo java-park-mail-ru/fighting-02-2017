@@ -66,7 +66,7 @@ public class UpdateUserLoginTest {
                                 .content(json.toString()))
                 .andExpect(jsonPath("status").value("200 OK"));
 
-        json.put("newlogin", userLogin+"newLogin");
+        json.put("newlogin", userLogin + "newLogin");
 
         mockMvc.
                 perform(
@@ -96,8 +96,8 @@ public class UpdateUserLoginTest {
                 .andExpect(jsonPath("status").value("200 OK"));
 
 
-        json.put("login", userLogin+"oldLogin");
-        json.put("newlogin", userLogin+"newLogin");
+        json.put("login", userLogin + "oldLogin");
+        json.put("newlogin", userLogin + "newLogin");
 
         mockMvc.
                 perform(

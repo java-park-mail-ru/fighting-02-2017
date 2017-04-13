@@ -35,14 +35,13 @@ public class UpdatePasswordTest {
     private Faker faker;
 
     private String userLogin;
-    private String password;
 
     private JSONObject json = new JSONObject();
 
     @Before
     public void setUp() throws Exception {
         faker = new Faker(new Locale("en-US"));
-        password = faker.internet().password(8, 10);
+        String password = faker.internet().password(8, 10);
         userLogin = faker.name().username();
         json.put("login", userLogin);
         json.put("password", password);

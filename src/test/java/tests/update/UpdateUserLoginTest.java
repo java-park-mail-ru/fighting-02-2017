@@ -32,17 +32,15 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class UpdateUserLoginTest {
     @Autowired
     private MockMvc mockMvc;
-    private Faker faker;
 
     private String userLogin;
-    private String password;
 
     private JSONObject json = new JSONObject();
 
     @Before
     public void setUp() throws Exception {
-        faker = new Faker(new Locale("en-US"));
-        password = faker.internet().password(8, 10);
+        final Faker faker = new Faker(new Locale("en-US"));
+        final String password = faker.internet().password(8, 10);
         userLogin = faker.name().username();
         json.put("login", userLogin);
         json.put("password", password);

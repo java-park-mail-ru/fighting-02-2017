@@ -49,7 +49,7 @@ public class RegistrationTest {
         password = faker.internet().password(8, 10);
         userLogin = faker.name().username();
 
-        JSONObject json = new JSONObject();
+        final JSONObject json = new JSONObject();
 
         json.put("login", userLogin);
         json.put("password", password);
@@ -70,7 +70,7 @@ public class RegistrationTest {
             password = faker.internet().password(0, 7);
             userLogin = faker.name().username();
 
-            JSONObject json = new JSONObject();
+            final JSONObject json = new JSONObject();
 
             json.put("login", userLogin);
             json.put("password", password);
@@ -93,7 +93,7 @@ public class RegistrationTest {
 
             userLogin = "Чебуратор";
 
-            JSONObject json = new JSONObject();
+            final JSONObject json = new JSONObject();
 
 
             json.put("login", userLogin);
@@ -119,7 +119,7 @@ public class RegistrationTest {
 
             userLogin = "Чебуратор";
 
-            JSONObject json = new JSONObject();
+            final JSONObject json = new JSONObject();
 
 
             json.put("login", userLogin);

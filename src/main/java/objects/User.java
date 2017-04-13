@@ -64,14 +64,14 @@ public class User {
 
     private Function<String, String> hash = password -> passwordEncoder.encode(password);
 
-    public Predicate<String> comparePass = passwordDB -> passwordEncoder.matches(getPassword(), passwordDB);
+    public Predicate<String> comparePass = passwordDB -> passwordEncoder.matches(password, passwordDB);
 
     public String getHashPassword() {
-        return hash.apply(getPassword());
+        return hash.apply(password);
     }
 
     public String getNewHashPassword() {
-        return hash.apply(getNewpassword());
+        return hash.apply(newpassword);
     }
 
     public String getPassword() {

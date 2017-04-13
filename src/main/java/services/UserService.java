@@ -6,6 +6,7 @@ import objects.UsersData;
 import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,7 +19,7 @@ import java.util.List;
  */
 @Service
 public class UserService {
-    private final static Logger log = Logger.getLogger(UserService.class.getName());
+    private static final Logger log = Logger.getLogger(UserService.class.getName());
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
@@ -69,16 +70,15 @@ public class UserService {
 
     @Transactional
     private int updateUsers(User user) {
-        int rowNumb;
-        rowNumb = jdbcTemplate.update("update users set login=? where login=?;", user.getNewlogin(), user.getLogin());
+        int rowNumb = jdbcTemplate.update("update users set login=? where login=?;", user.getNewlogin(), user.getLogin());
         rowNumb += jdbcTemplate.update("update usersdata set login=? where login=?;", user.getNewlogin(), user.getLogin());
         return rowNumb;
     }
 
     @Transactional
     private boolean checkINputPasAndLog(User user) {
-        String SQL = "SELECT * FROM users WHERE login = ?";
-        User userDB = jdbcTemplate.queryForObject(SQL,
+        final String SQL = "SELECT * FROM users WHERE login = ?";
+        final User userDB = jdbcTemplate.queryForObject(SQL,
                 new Object[]{user.getLogin()}, new UserMapper());
         return user.comparePass.test(userDB.getPassword());
     }
@@ -98,11 +98,11 @@ public class UserService {
 
     public void getUser(String login, CallbackWithUser callbackWithUser) {
         try {
-            String SQL = "SELECT * FROM users WHERE login = ?";
-            User userDB = jdbcTemplate.queryForObject(SQL,
+            final String SQL = "SELECT * FROM users WHERE login = ?";
+            final User userDB = jdbcTemplate.queryForObject(SQL,
                     new Object[]{login}, new UserMapper());
             callbackWithUser.onSuccess(new HttpStatus().getOk(), userDB);
-        } catch (Exception e) {
+        } catch (DataAccessException e) {
             log.error("Not Found");
             callbackWithUser.onError(new HttpStatus().getNotFound());
         }
@@ -110,7 +110,7 @@ public class UserService {
 
     public void update(User newUser, CallbackWithUser callbackWithUser) {
         try {
-            int rowNum = updateUsers(newUser);
+            final int rowNum = updateUsers(newUser);
             if (rowNum == 0) {
                 log.error("Bad Request");
                 callbackWithUser.onError(new HttpStatus().getBadRequest());
@@ -127,7 +127,7 @@ public class UserService {
     public void updateInfo(UsersData usersData, CallbackWithUser callbackWithUser) {
         try {
             System.out.println(usersData.getJson());
-            int rownum = jdbcTemplate.update(
+            final int rownum = jdbcTemplate.update(
                     "UPDATE usersData SET rating = ?, game_count = ?, game_count_win = ?, " +
                             "crystal_purple = ?, crystal_red = ?, crystal_blue = ?, crystal_green = ?" +
                             "WHERE login = ?",
@@ -164,9 +164,9 @@ public class UserService {
             callbackWithUser.onError(new HttpStatus().getNotFound());
             return;
         }
-        String SQL = "UPDATE users SET password= ? where login=?";
         try {
-            int rownum = jdbcTemplate.update(
+            final String SQL = "UPDATE users SET password= ? where login=?";
+            final int rownum = jdbcTemplate.update(
                     SQL, user.getNewHashPassword(), user.getLogin());
 
             if (rownum == 0) {
@@ -183,9 +183,9 @@ public class UserService {
 
     public JSONArray getLeaders() {
         final JSONArray jsonArray = new JSONArray();
-        String SQL = "SELECT login, rating FROM usersdata ORDER BY rating DESC LIMIT 20";
-        List<UsersData> users = jdbcTemplate.query(SQL, (rs, rownumber) -> {
-            UsersData usersData = new UsersData();
+        final String SQL = "SELECT login, rating FROM usersdata ORDER BY rating DESC LIMIT 20";
+        final List<UsersData> users = jdbcTemplate.query(SQL, (rs, rownumber) -> {
+            final UsersData usersData = new UsersData();
             usersData.setLogin(rs.getString("login"));
             usersData.setRating(rs.getInt("rating"));
             return usersData;

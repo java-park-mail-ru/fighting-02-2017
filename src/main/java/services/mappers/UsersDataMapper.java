@@ -10,8 +10,9 @@ import java.sql.SQLException;
  * Created by andrey on 27.03.17.
  */
 public class UsersDataMapper implements RowMapper<UsersData> {
+    @Override
     public UsersData mapRow(ResultSet rs, int rowNum) throws SQLException {
-        UsersData usersData = new UsersData();
+        final UsersData usersData = new UsersData();
         usersData.setLogin(rs.getString("login"));
         usersData.setGameCount(rs.getInt("game_count"));
         usersData.setGameCountWin(rs.getInt("game_count_win"));

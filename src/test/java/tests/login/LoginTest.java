@@ -32,14 +32,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class LoginTest {
     @Autowired
     private MockMvc mockMvc;
-    private Faker faker;
 
     private String userLogin;
     private String password;
 
     @Before
     public void setUp() {
-        faker = new Faker(new Locale("en-US"));
+        final Faker faker = new Faker(new Locale("en-US"));
         password = faker.internet().password(8, 10);
         userLogin = faker.name().username();
     }
@@ -47,7 +46,7 @@ public class LoginTest {
     @Test
     public void loginOk() throws Exception {
 
-        JSONObject json = new JSONObject();
+        final JSONObject json = new JSONObject();
 
         json.put("login", userLogin);
         json.put("password", password);
@@ -68,7 +67,7 @@ public class LoginTest {
     @Test
     public void loginFail() throws Exception {
 
-        JSONObject json = new JSONObject();
+        final JSONObject json = new JSONObject();
 
         json.put("login", userLogin);
         json.put("password", password);

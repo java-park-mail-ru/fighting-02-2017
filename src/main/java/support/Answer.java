@@ -10,9 +10,6 @@ import org.json.JSONObject;
 public class Answer {
     private String result;
 
-    public Answer() {
-    }
-
     public String getResult() {
         return result;
     }

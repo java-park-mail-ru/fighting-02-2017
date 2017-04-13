@@ -19,13 +19,10 @@ import javax.servlet.http.HttpSession;
 @RestController
 @RequestMapping("/api/user")
 public class UserController {
-    final static Logger log = Logger.getLogger(UserController.class);
+    static final Logger log = Logger.getLogger(UserController.class);
     private final UserService userService;
-    private final static String SESSIONKEY = "user";
-    private final static String URL = "https://tp-front-end-js-game.herokuapp.com";
-    //private final String URL = "http://localhost:63343";
-    //private final String URL = "*";
-
+    private static final String SESSIONKEY = "user";
+    private static final String URL = "https://tp-front-end-js-game.herokuapp.com";
     public UserController(JdbcTemplate jdbcTemplate) {
         this.userService = new UserService(jdbcTemplate);
     }
@@ -33,7 +30,7 @@ public class UserController {
     @CrossOrigin(origins = URL, maxAge = 3600)
     @RequestMapping(path = "/login", method = RequestMethod.POST, produces = "application/json", consumes = "application/json")
     public String loginUser(@RequestBody User body, HttpSession httpSession) {
-        Answer answer = new Answer();
+        final Answer answer = new Answer();
         userService.login(body, new UserService.CallbackWithUser<User>() {
             @Override
             public void onSuccess(String status, User user) {
@@ -54,7 +51,7 @@ public class UserController {
             consumes = "application/json")
     public String registerUser(@RequestBody User body) {
 
-        Answer answer = new Answer();
+        final Answer answer = new Answer();
         userService.register(body, new UserService.Callback() {
             @Override
             public void onSuccess(String status) {
@@ -73,7 +70,7 @@ public class UserController {
     @RequestMapping(path = "/get", method = RequestMethod.GET, produces = "application/json")
     public String getUser(HttpSession httpSession) {
 
-        Answer answer = new Answer();
+        final Answer answer = new Answer();
         final String login = (String) httpSession.getAttribute(SESSIONKEY);
         userService.getUser(login, new UserService.CallbackWithUser<User>() {
             @Override
@@ -100,7 +97,7 @@ public class UserController {
     public String updateUser(@RequestBody User body,
                              HttpSession httpSession) {
 
-        Answer answer = new Answer();
+        final Answer answer = new Answer();
         if (httpSession.getAttribute(SESSIONKEY) != null) {
             userService.update(body, new UserService.CallbackWithUser<User>() {
                 @Override
@@ -127,7 +124,7 @@ public class UserController {
             consumes = "application/json")
     public String updateUserInfo(@RequestBody UsersData body,
                                  HttpSession httpSession) {
-        Answer answer = new Answer();
+        final Answer answer = new Answer();
         if (httpSession.getAttribute(SESSIONKEY) != null) {
             userService.updateInfo(body, new UserService.CallbackWithUser<UsersData>() {
                 @Override
@@ -154,7 +151,7 @@ public class UserController {
     @RequestMapping(path = "/changepass", method = RequestMethod.POST, produces = "application/json", consumes = "application/json")
     public String changeUserPass(@RequestBody User body,
                                  HttpSession httpSession) {
-        Answer answer = new Answer();
+        final Answer answer = new Answer();
         if (httpSession.getAttribute(SESSIONKEY) != null) {
             userService.changePass(body, new UserService.CallbackWithUser<User>() {
                 @Override
@@ -181,7 +178,7 @@ public class UserController {
     @RequestMapping(path = "/logout", method = RequestMethod.GET, produces = "application/json")
     public String logoutUser(HttpSession httpSession) {
 
-        Answer answer = new Answer();
+        final Answer answer = new Answer();
         if (httpSession.getAttribute(SESSIONKEY) != null) {
             httpSession.removeAttribute(SESSIONKEY);
             answer.onlyStatus(new HttpStatus().getOk());
@@ -195,7 +192,7 @@ public class UserController {
     @CrossOrigin(origins = URL, maxAge = 3600)
     @RequestMapping(path = "/leaders", method = RequestMethod.GET, produces = "application/json")
     public String getLeaders() {
-        Answer answer = new Answer();
+        final Answer answer = new Answer();
         try {
             answer.forLeaders(new HttpStatus().getOk(), userService.getLeaders());
         } catch (JSONException e) {

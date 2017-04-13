@@ -50,19 +50,6 @@ public class UpdateLoginTest {
         json.put("login", userLogin);
         json.put("password", password);
 
-//        mockMvc
-//                .perform(
-//                        post("/api/user/signup")
-//                                .contentType(MediaType.APPLICATION_JSON)
-//                                .content(json.toString()))
-//                .andExpect(jsonPath("status").value("200 OK"));
-//
-//        mockMvc.perform(post("/api/user/login")
-//                .contentType(MediaType.APPLICATION_JSON)
-//                .content(json.toString()))
-//                .andExpect(jsonPath("status").value("200 OK"));
-
-
     }
 
     @Test
@@ -80,7 +67,7 @@ public class UpdateLoginTest {
                 .content(json.toString()))
                 .andExpect(jsonPath("status").value("200 OK"));
 
-        String oldLogin = (String) json.get("login");
+        final String oldLogin = (String) json.get("login");
         json.put("newlogin", faker.name().username());
 
         mockMvc

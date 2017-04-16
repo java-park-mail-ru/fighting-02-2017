@@ -31,18 +31,12 @@ public class UserController {
     @RequestMapping(path = "/login", method = RequestMethod.POST, produces = "application/json", consumes = "application/json")
     public String loginUser(@RequestBody User body, HttpSession httpSession) {
         final Answer answer = new Answer();
-        userService.login(body, new UserService.CallbackWithUser<User>() {
-            @Override
-            public void onSuccess(String status, User user) {
-                answer.withObject(status, user);
-                httpSession.setAttribute(SESSIONKEY, user.getLogin());
-            }
-
-            @Override
-            public void onError(String status) {
-                answer.onlyStatus(status);
-            }
-        });
+        final String status=userService.login(body);
+               if(status.equals(new HttpStatus().getOk())) {
+                   answer.withObject(status, body);
+                   httpSession.setAttribute(SESSIONKEY, body.getLogin());
+               }
+            else answer.onlyStatus(status);
         return answer.getResult();
     }
 
@@ -52,17 +46,8 @@ public class UserController {
     public String registerUser(@RequestBody User body) {
 
         final Answer answer = new Answer();
-        userService.register(body, new UserService.Callback() {
-            @Override
-            public void onSuccess(String status) {
-                answer.onlyStatus(status);
-            }
-
-            @Override
-            public void onError(String status) {
-                answer.onlyStatus(status);
-            }
-        });
+        final String status=userService.register(body);
+        answer.onlyStatus(status);
         return answer.getResult();
     }
 
@@ -72,22 +57,11 @@ public class UserController {
 
         final Answer answer = new Answer();
         final String login = (String) httpSession.getAttribute(SESSIONKEY);
-        userService.getUser(login, new UserService.CallbackWithUser<User>() {
-            @Override
-            public void onSuccess(String status, User user) {
-
-                if (user != null) answer.withObject(status, user);
-                else {
-                    log.error("Unauthorized");
-                    answer.onlyStatus(new HttpStatus().getUnauthorized());
-                }
-            }
-
-            @Override
-            public void onError(String status) {
-                answer.onlyStatus(status);
-            }
-        });
+        final Object result=userService.getUser(login);
+        if(result.getClass().equals(User.class)){
+            answer.withObject(new HttpStatus().getOk(), (User)result);
+        }
+        else answer.onlyStatus(result.toString());
         return answer.getResult();
     }
 
@@ -99,20 +73,15 @@ public class UserController {
 
         final Answer answer = new Answer();
         if (httpSession.getAttribute(SESSIONKEY) != null) {
-            userService.update(body, new UserService.CallbackWithUser<User>() {
-                @Override
-                public void onSuccess(String status, User user) {
-                    httpSession.removeAttribute(SESSIONKEY);
-                    httpSession.setAttribute(SESSIONKEY, user.getLogin());
-                    answer.onlyStatus(status);
-                }
-
-                @Override
-                public void onError(String status) {
-                    answer.onlyStatus(status);
-                }
-            });
-        } else {
+            final Object result=userService.update(body);
+                    if(result.getClass().equals(User.class)) {
+                        httpSession.removeAttribute(SESSIONKEY);
+                        httpSession.setAttribute(SESSIONKEY, ((User)result).getLogin());
+                        answer.onlyStatus(new HttpStatus().getOk());
+                    }
+                    else answer.onlyStatus(result.toString());
+        }
+        else {
             log.error("Unauthorized");
             answer.onlyStatus(new HttpStatus().getUnauthorized());
         }
@@ -126,20 +95,11 @@ public class UserController {
                                  HttpSession httpSession) {
         final Answer answer = new Answer();
         if (httpSession.getAttribute(SESSIONKEY) != null) {
-            userService.updateInfo(body, new UserService.CallbackWithUser<UsersData>() {
-                @Override
-                public void onSuccess(String status, UsersData objUser) {
-                    //final String login = (String) httpSession.getAttribute(SESSIONKEY);
-                    httpSession.removeAttribute(SESSIONKEY);
-                    httpSession.setAttribute(SESSIONKEY, objUser.getLogin());
-                    answer.onlyStatus(status);
+            final Object result = userService.updateInfo(body);
+                    if(result.getClass().equals(UsersData.class)){
+                    answer.onlyStatus(new HttpStatus().getOk());
                 }
-
-                @Override
-                public void onError(String status) {
-                    answer.onlyStatus(status);
-                }
-            });
+                else answer.onlyStatus(result.toString());
         } else {
             log.error("Unauthorized");
             answer.onlyStatus(new HttpStatus().getUnauthorized());
@@ -153,20 +113,8 @@ public class UserController {
                                  HttpSession httpSession) {
         final Answer answer = new Answer();
         if (httpSession.getAttribute(SESSIONKEY) != null) {
-            userService.changePass(body, new UserService.CallbackWithUser<User>() {
-                @Override
-                public void onSuccess(String status, User user) {
-                    final String login = (String) httpSession.getAttribute(SESSIONKEY);
-                    httpSession.removeAttribute(SESSIONKEY);
-                    httpSession.setAttribute(SESSIONKEY, login);
-                    answer.onlyStatus(status);
-                }
-
-                @Override
-                public void onError(String status) {
-                    answer.onlyStatus(status);
-                }
-            });
+            final String status=userService.changePass(body);
+            answer.onlyStatus(status);
         } else {
             log.error("Unauthorized");
             answer.onlyStatus(new HttpStatus().getUnauthorized());

@@ -11,7 +11,6 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import services.mappers.UserMapper;
-
 import java.util.List;
 
 /**
@@ -19,47 +18,28 @@ import java.util.List;
  */
 @Service
 public class UserService {
-    private static final Logger log = Logger.getLogger(UserService.class.getName());
+    private static final Logger log = Logger.getLogger(UserService.class);
     @Autowired
     private JdbcTemplate jdbcTemplate;
-
-    public interface Callback {
-        void onSuccess(String status);
-
-        void onError(String status);
-    }
-
-    public interface CallbackWithUser<T> {
-        void onSuccess(String status, T objUser);
-
-        void onError(String status);
-    }
 
     public UserService(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    public void register(User user, Callback callback) {
-        if (user.getPassword().isEmpty() || user.getLogin().isEmpty()) {
-            callback.onError(new HttpStatus().getForbidden());
-        } else if (user.getPassword().length() < 8) {
+    public String register(User user) {
+        if (user.getPassword().isEmpty() || user.getLogin().isEmpty()
+                || (user.getPassword().length() < 8) || (user.getLogin().matches("[а-яА-ЯёЁ]+"))
+                || (user.getLogin().length() < 4)) {
             log.error("Forbidden");
-            callback.onError(new HttpStatus().getForbidden());
-        } else if (user.getLogin().matches("[а-яА-ЯёЁ]+")) {
-            log.error("Forbidden");
-            callback.onError(new HttpStatus().getForbidden());
-        } else if (user.getLogin().length() < 4) {
-            log.error("Forbidden");
-            callback.onError(new HttpStatus().getForbidden());
-        } else {
+            return new HttpStatus().getForbidden();
+        }
             try {
                 registerUser(user);
-                callback.onSuccess(new HttpStatus().getOk());
+                return new HttpStatus().getOk();
             } catch (RuntimeException e) {
                 log.error("Forbidden");
-                callback.onError(new HttpStatus().getForbidden());
+                return new HttpStatus().getForbidden();
             }
-        }
     }
 
     @Transactional
@@ -83,50 +63,47 @@ public class UserService {
         return user.comparePass.test(userDB.getPassword());
     }
 
-    public void login(User user, CallbackWithUser callbackWithUser) {
-        try {
-            if (checkINputPasAndLog(user)) callbackWithUser.onSuccess(new HttpStatus().getOk(), user);
-            else {
-                log.error("Not Found");
-                callbackWithUser.onError(new HttpStatus().getNotFound());
-            }
-        } catch (Exception e) {
-            callbackWithUser.onError(new HttpStatus().getNotFound());
-            log.error("Not Found");
-        }
-    }
-
-    public void getUser(String login, CallbackWithUser callbackWithUser) {
+    public Object getUser(String login) {
         try {
             final String SQL = "SELECT * FROM users WHERE login = ?";
             final User userDB = jdbcTemplate.queryForObject(SQL,
                     new Object[]{login}, new UserMapper());
-            callbackWithUser.onSuccess(new HttpStatus().getOk(), userDB);
+            return userDB;
         } catch (DataAccessException e) {
             log.error("Not Found");
-            callbackWithUser.onError(new HttpStatus().getNotFound());
+            return new HttpStatus().getNotFound();
         }
     }
 
-    public void update(User newUser, CallbackWithUser callbackWithUser) {
+    public String login(User user) {
+        try {
+            if (checkINputPasAndLog(user)) return new HttpStatus().getOk();
+            else {
+                log.error("Not Found");
+                return new HttpStatus().getNotFound();
+            }
+        } catch (Exception e) {
+            log.error("Not Found");
+            return new HttpStatus().getNotFound();
+        }
+    }
+
+    public Object update(User newUser) {
         try {
             final int rowNum = updateUsers(newUser);
             if (rowNum == 0) {
                 log.error("Bad Request");
-                callbackWithUser.onError(new HttpStatus().getBadRequest());
-                return;
+                return new HttpStatus().getBadRequest();
             }
-            callbackWithUser.onSuccess(new HttpStatus().getOk(), newUser);
-
+            return newUser;
         } catch (Exception e) {
             log.error("Bad Request");
-            callbackWithUser.onError(new HttpStatus().getBadRequest());
+            return new HttpStatus().getBadRequest();
         }
     }
 
-    public void updateInfo(UsersData usersData, CallbackWithUser callbackWithUser) {
+    public Object updateInfo(UsersData usersData) {
         try {
-            System.out.println(usersData.getJson());
             final int rownum = jdbcTemplate.update(
                     "UPDATE usersData SET rating = ?, game_count = ?, game_count_win = ?, " +
                             "crystal_purple = ?, crystal_red = ?, crystal_blue = ?, crystal_green = ?" +
@@ -142,27 +119,23 @@ public class UserService {
             );
             if (rownum == 0) {
                 log.error("Bad Request");
-                callbackWithUser.onError(new HttpStatus().getBadRequest());
-            } else {
-                callbackWithUser.onSuccess(new HttpStatus().getOk(), usersData);
+                return new HttpStatus().getBadRequest();
             }
+            else return usersData;
         } catch (Exception e) {
             log.error("Bad Request");
-            callbackWithUser.onError(new HttpStatus().getBadRequest());
+           return new HttpStatus().getBadRequest();
         }
     }
 
-    public void changePass(User user, CallbackWithUser callbackWithUser) {
-
+    public String changePass(User user) {
         try {
             if (!checkINputPasAndLog(user)) {
-                callbackWithUser.onError(new HttpStatus().getNotFound());
-                return;
+                return new HttpStatus().getNotFound();
             }
         } catch (Exception e) {
             log.error("Not Found");
-            callbackWithUser.onError(new HttpStatus().getNotFound());
-            return;
+            return new HttpStatus().getNotFound();
         }
         try {
             final String SQL = "UPDATE users SET password= ? where login=?";
@@ -171,13 +144,13 @@ public class UserService {
 
             if (rownum == 0) {
                 log.error("Bad Request");
-                callbackWithUser.onError(new HttpStatus().getBadRequest());
+                return new HttpStatus().getBadRequest();
             } else {
-                callbackWithUser.onSuccess(new HttpStatus().getOk(), user);
+                return new HttpStatus().getOk();
             }
         } catch (Exception e) {
             log.error("Bad Request");
-            callbackWithUser.onError(new HttpStatus().getBadRequest());
+            return new HttpStatus().getBadRequest();
         }
     }
 

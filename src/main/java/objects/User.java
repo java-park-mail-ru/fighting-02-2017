@@ -2,29 +2,39 @@ package objects;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import org.json.JSONException;
 import org.json.JSONObject;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
-import java.util.Objects;
+import java.util.function.Function;
+import java.util.function.Predicate;
+
 
 /**
  * Created by Denis on 21.02.2017.
  */
-public class ObjUser {
-    private String id;
+
+public class User {
+    private Integer id;
     private String login;
     private String newlogin;
     private String password;
     private String newpassword;
     private Integer rating;
+    private Integer gameCount;
+    private Integer gameCountWin;
+    private Integer crystalGreen;
+    private Integer crystalBlue;
+    private Integer crystalRed;
+    private Integer crystalPurple;
 
-    public ObjUser() {
+    public User() {
 
     }
 
     @JsonCreator
-    public ObjUser(
-            @JsonProperty("id") String id,
+    public User(
+            @JsonProperty("id") Integer id,
             @JsonProperty("login") String login,
             @JsonProperty("newlogin") String newlogin,
             @JsonProperty("password") String password,
@@ -34,14 +44,10 @@ public class ObjUser {
         this.newlogin = newlogin;
         this.password = password;
         this.newpassword = newpassword;
-        this.rating = (int) (Math.random() * 1000);
     }
 
-    public Integer getRating() {
-        return rating;
-    }
 
-    public String getId() {
+    public Integer getId() {
         return id;
     }
 
@@ -49,8 +55,23 @@ public class ObjUser {
         return login;
     }
 
+
     public String getNewlogin() {
         return newlogin;
+    }
+
+    PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+
+    private Function<String, String> hash = password -> passwordEncoder.encode(password);
+
+    public Predicate<String> comparePass = passwordDB -> passwordEncoder.matches(password, passwordDB);
+
+    public String getHashPassword() {
+        return hash.apply(password);
+    }
+
+    public String getNewHashPassword() {
+        return hash.apply(newpassword);
     }
 
     public String getPassword() {
@@ -61,13 +82,6 @@ public class ObjUser {
         return newpassword;
     }
 
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public void setRating(Integer rating) {
-        this.rating = rating;
-    }
 
     public void setLogin(String login) {
         this.login = login;
@@ -85,12 +99,15 @@ public class ObjUser {
         this.newlogin = newlogin;
     }
 
+    public void setId(int id) {
+        this.id = id;
+    }
+
     public JSONObject getJson() {
         final JSONObject jsonObject = new JSONObject();
         jsonObject.put("id", id);
         jsonObject.put("login", login);
-        jsonObject.put("rating", rating);
-        //jsonObject.put("password", password);
         return jsonObject;
+
     }
 }

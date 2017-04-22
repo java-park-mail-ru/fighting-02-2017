@@ -1,4 +1,4 @@
-package websocket;
+package sample.websocket;
 
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;

@@ -4,16 +4,16 @@ package sample;
  * Created by andrey on 16.04.17.
  */
 import org.jetbrains.annotations.NotNull;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.socket.WebSocketHandler;
 import org.springframework.web.socket.config.annotation.EnableWebSocket;
 import org.springframework.web.socket.config.annotation.WebSocketConfigurer;
 import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry;
 import org.springframework.web.socket.handler.PerConnectionWebSocketHandler;
 import org.springframework.web.socket.server.support.HttpSessionHandshakeInterceptor;
-import websocket.GameWebSocketHandler;
-
 
 @EnableWebSocket
 public class WebSocketConfig implements WebSocketConfigurer {
@@ -23,6 +23,7 @@ public class WebSocketConfig implements WebSocketConfigurer {
     public WebSocketConfig(@NotNull WebSocketHandler webSocketHandler) {
         this.webSocketHandler = webSocketHandler;
     }
+
     @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
         registry.addHandler(webSocketHandler, "/api/user/game")

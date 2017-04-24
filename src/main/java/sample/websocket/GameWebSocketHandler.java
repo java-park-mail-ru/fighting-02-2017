@@ -8,6 +8,7 @@ import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
@@ -31,18 +32,27 @@ public class GameWebSocketHandler extends TextWebSocketHandler {
 
     private @NotNull SocketService socketService;
 
+    @ExceptionHandler(Exception.class)
+    public void handleException(WebSocketSession webSocketSession, Exception e,CloseStatus closeStatus) throws Exception {
+        log.error(e.getMessage());
+        afterConnectionClosed(webSocketSession,closeStatus);
+    }
     public  GameWebSocketHandler(@NotNull SocketService socketService,@NotNull  UserService userService){
         this.socketService=socketService;
         this.userService=userService;
     }
     @Override
-    public void afterConnectionEstablished(WebSocketSession webSocketSession) throws AuthenticationException {
+    public void afterConnectionEstablished(WebSocketSession webSocketSession) throws AuthenticationException, IOException {
         System.out.println("Connect");
+
         final String login = (String) webSocketSession.getAttributes().get(SESSIONKEY);
         if ((login == null)) {
             throw new AuthenticationException("Only authenticated users allowed to play a game");
         }
         socketService.registerUser(login, webSocketSession);
+        JSONObject jsonObject=new JSONObject();
+        jsonObject.put("message","Connect");
+        socketService.sendMessageToUser(login,jsonObject);
     }
 
     @Override

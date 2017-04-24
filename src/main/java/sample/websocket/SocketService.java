@@ -49,7 +49,6 @@ public class SocketService {
             }
         }
     }
-
     public void sendMessageToUser(@NotNull String login, @NotNull JSONObject json) throws IOException {
         final WebSocketSession webSocketSession = sessions.get(login);
         if (webSocketSession == null) {

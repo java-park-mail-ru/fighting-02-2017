@@ -1,5 +1,6 @@
 package support;
 
+import objects.Mutual;
 import objects.User;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -14,7 +15,7 @@ public class Answer {
     //    return result;
    // }
 
-    public String withObject(String status, User user) {
+    public String withObject(String status, Mutual user) {
         final JSONObject answer = new JSONObject();
         answer.put("status", status);
         answer.put("user", user.getJson());

@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.web.socket.WebSocketHandler;
 import org.springframework.web.socket.handler.PerConnectionWebSocketHandler;
 import sample.websocket.GameWebSocketHandler;
@@ -18,6 +19,7 @@ import java.util.concurrent.TimeUnit;
  */
 
 @SpringBootApplication
+@ComponentScan(basePackages = {"services","sample"})
 public class Application {
     public static final long IDLE_TIMEOUT_MS = TimeUnit.MINUTES.toMillis(1);
     public static final int BUFFER_SIZE_BYTES = 8192;
@@ -28,7 +30,7 @@ public class Application {
     @Bean
     public WebSocketHandler gameWebSocketHandler() {
         return new PerConnectionWebSocketHandler(GameWebSocketHandler.class);
-      //  return new GameWebSocketHandler();
+      // return new GameWebSocketHandler();
     }
  @Autowired
  private BeanFactory beanFactory;

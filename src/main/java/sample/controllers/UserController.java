@@ -3,11 +3,13 @@ package sample.controllers;
 import com.sun.jndi.toolkit.url.Uri;
 import javassist.NotFoundException;
 import objects.HttpStatus;
+import objects.Mutual;
 import objects.User;
 import objects.UsersData;
 import org.apache.log4j.Logger;
 import org.json.JSONException;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.*;
 import services.UserService;
 import support.Answer;
@@ -28,8 +30,8 @@ public class UserController {
     private static final String SESSIONKEY = "user";
     private final Answer answer=new Answer();
     private static final String URL = "https://tp-front-end-js-game.herokuapp.com";
-    public UserController(JdbcTemplate jdbcTemplate) {
-        this.userService = new UserService(jdbcTemplate);
+    public UserController(UserService userService) {
+        this.userService = userService;
     }
     public static class URIRequest{
         public static final String login="/login";
@@ -42,8 +44,9 @@ public class UserController {
         public static final String leaders="/leaders";
 
     }
-    @ExceptionHandler(Exception.class)
-    public String handleException(HttpServletRequest request){
+   /* @ExceptionHandler(Exception.class)
+    public String handleException(HttpServletRequest request, Exception e){
+
         final String method=request.getRequestURI().replaceAll("/api/user","");
         if (method.equals(URIRequest.signup))
             return answer.onlyStatus(new HttpStatus().getForbidden());
@@ -53,27 +56,28 @@ public class UserController {
             return answer.onlyStatus(new HttpStatus().getBadRequest());
 
         return answer.onlyStatus("It is strange");
-    }
+    }*/
     @CrossOrigin(origins = URL, maxAge = 3600)
     @RequestMapping(path =URIRequest.login , method = RequestMethod.POST, produces = "application/json", consumes = "application/json")
-    public String loginUser(@RequestBody User body, HttpSession httpSession) throws Exception {
+    public String loginUser(@RequestBody User body, HttpSession httpSession)  {
         final String status=userService.login(body);
-        httpSession.setAttribute(SESSIONKEY, body.getLogin());
+        if(status.equals(new HttpStatus().getOk())) httpSession.setAttribute(SESSIONKEY, body.getLogin());
         return answer.withObject(status, body);
     }
 
     @CrossOrigin(origins = URL, maxAge = 3600)
     @RequestMapping(path = URIRequest.signup, method = RequestMethod.POST, produces = "application/json",
             consumes = "application/json")
-        public String registerUser(@RequestBody User body) throws Exception {
+        public String registerUser(@RequestBody User body) {
         final String status=userService.register(body);
         return answer.onlyStatus(status);
     }
 
     @CrossOrigin(origins = URL, maxAge = 3600)
     @RequestMapping(path = URIRequest.get, method = RequestMethod.GET, produces = "application/json")
-    public String getUser(HttpSession httpSession) throws Exception {
+    public String getUser(HttpSession httpSession) {
         final String login = (String) httpSession.getAttribute(SESSIONKEY);
+        if(login==null) return answer.onlyStatus(new HttpStatus().getNotFound());
         final User user=userService.getUser(login);
         return answer.withObject(new HttpStatus().getOk(), user);
     }
@@ -81,13 +85,15 @@ public class UserController {
     @CrossOrigin(origins = URL, maxAge = 3600)
     @RequestMapping(path = URIRequest.update, method = RequestMethod.POST, produces = "application/json",
             consumes = "application/json")
-    public String updateUser(@RequestBody User body,
-                             HttpSession httpSession) throws Exception {
+    public String updateUserLogin(@RequestBody User body,
+                             HttpSession httpSession)  {
         if (httpSession.getAttribute(SESSIONKEY) != null) {
-            final User user=userService.update(body);
-            httpSession.removeAttribute(SESSIONKEY);
-            httpSession.setAttribute(SESSIONKEY, user.getLogin());
-            return answer.onlyStatus(new HttpStatus().getOk());
+            final String status=userService.update(body);
+            if(status.equals(new HttpStatus().getOk())){
+                httpSession.removeAttribute(SESSIONKEY);
+                httpSession.setAttribute(SESSIONKEY, body.getLogin());
+            }
+            return answer.onlyStatus(status);
         }
         log.error("Unauthorized");
         return answer.onlyStatus(new HttpStatus().getUnauthorized());
@@ -99,11 +105,12 @@ public class UserController {
     @RequestMapping(path = URIRequest.updateInfo, method = RequestMethod.POST, produces = "application/json",
             consumes = "application/json")
     public String updateUserInfo(@RequestBody UsersData body,
-                                 HttpSession httpSession) throws Exception {
-        if (httpSession.getAttribute(SESSIONKEY) != null) {
-            final UsersData usersData = userService.updateInfo(body);
-            return answer.onlyStatus(new HttpStatus().getOk());
-        }
+                                 HttpSession httpSession) {
+            if (httpSession.getAttribute(SESSIONKEY) != null) {
+                final UsersData usersData = userService.updateInfo(body);
+                if (usersData==null) return  answer.onlyStatus(new HttpStatus().getBadRequest());
+                return answer.withObject(new HttpStatus().getOk(), usersData);
+            }
         log.error("Unauthorized");
         return answer.onlyStatus(new HttpStatus().getUnauthorized());
     }
@@ -111,7 +118,7 @@ public class UserController {
     @CrossOrigin(origins = URL, maxAge = 3600)
     @RequestMapping(path = URIRequest.changePass, method = RequestMethod.POST, produces = "application/json", consumes = "application/json")
     public String changeUserPass(@RequestBody User body,
-                                 HttpSession httpSession) throws Exception {
+                                 HttpSession httpSession)  {
         if (httpSession.getAttribute(SESSIONKEY) != null) {
             final String status=userService.changePass(body);
             return answer.onlyStatus(status);

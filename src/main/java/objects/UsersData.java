@@ -7,7 +7,7 @@ import org.json.JSONObject;
 /**
  * Created by andrey on 27.03.17.
  */
-public class UsersData {
+public class UsersData implements Mutual{
     private String login;
     private Integer rating;
     private Integer gameCount;

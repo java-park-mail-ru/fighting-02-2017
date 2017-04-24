@@ -29,7 +29,7 @@ public class UserController {
     private final UserService userService;
     private static final String SESSIONKEY = "user";
     private final Answer answer=new Answer();
-    private static final String URL = "https://tp-front-end-js-game.herokuapp.com";
+    private static final String URL = "*";
     public UserController(UserService userService) {
         this.userService = userService;
     }

@@ -1,7 +1,6 @@
 package support;
 
 import objects.Mutual;
-import objects.User;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -33,6 +32,12 @@ public class Answer {
         answer.put("leaders", leaders);
         answer.put("status", status);
         return  answer.toString();
+    }
+
+    public JSONObject messageClient(String answer){
+        final JSONObject result= new JSONObject();
+        result.put("message",answer);
+        return result;
     }
 
 

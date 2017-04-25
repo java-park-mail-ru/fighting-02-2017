@@ -8,8 +8,9 @@ import sample.websocket.SocketService;
 import support.Coef;
 
 import java.io.IOException;
-import java.util.Objects;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * Created by andrey on 24.04.17.
@@ -18,52 +19,35 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 public class GameService {
     @Autowired
     private SocketService socketService;
+    @Autowired
+    private GameMechanicsSingleThread gameMechanicsSingleThread;
+    private ExecutorService tickExecutor= Executors.newSingleThreadExecutor();
     private @NotNull ConcurrentLinkedQueue<String> waiters = new ConcurrentLinkedQueue<>();
     private @NotNull ConcurrentLinkedQueue<SnapShot> snapshot = new ConcurrentLinkedQueue<>();
-    private @NotNull ConcurrentLinkedQueue<String> users = new ConcurrentLinkedQueue<>();
+    private @NotNull ConcurrentLinkedQueue<Players> playingNow = new ConcurrentLinkedQueue<>();
+    private static class Players{
+        //login
+        String first;
+        String second;
+    }
     public void addWaiters(String login) {
-        if (waiters.isEmpty()) {
-            System.out.println("Waiting");
-            waiters.add(login);
-        } else {
-            users.add(waiters.peek());
-            users.add(login);
-            startGame(waiters.poll(), login);
-        }
-    }
-    public void startGame(String login1,String login2){
-        System.out.println("playing "+login1+" and "+login2);
-
+        tickExecutor.submit(() -> {
+            try {
+                gameMechanicsSingleThread.addWaiters(login);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
     }
 
-   // public Integer hit1To2(SnapShot snap1,SnapShot snap2){
-    //
-    //}
-    public void gmStemp(SnapShot snap1,SnapShot snap2) throws IOException {
-        final Coef coef1= new Coef();
-        coef1.setKMethod(snap1.method);
-        coef1.setKBlock(snap1.target,snap2.block);
-        snap1.hp=snap1.hp-coef1.damage;
-
-        final Coef coef2= new Coef();
-        coef2.setKMethod(snap2.method);
-        coef2.setKBlock(snap2.target,snap1.block);
-        snap2.hp=snap2.hp-coef2.damage;
-        final JSONObject jsonObject=new JSONObject();
-        jsonObject.put("hp1",snap1.hp);
-        jsonObject.put("hp2",snap2.hp);
-        jsonObject.put("damage1",coef1.damage);
-        jsonObject.put("damage2",coef2.damage);
-        socketService.sendMessageToUser(users.poll(),jsonObject);
-        socketService.sendMessageToUser(users.poll(),jsonObject);
-    }
-    public void addSnap(SnapShot snap) throws IOException {
-        if (snapshot.isEmpty()) {
-            System.out.println("Waiting");
-            snapshot.add(snap);
-        } else {
-            gmStemp(snapshot.poll(), snap);
-        }
+    public void addSnap(String login, SnapShot snap) throws IOException {
+        tickExecutor.submit(() -> {
+            try {
+                gameMechanicsSingleThread.addSnap(snap);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
     }
 }
 

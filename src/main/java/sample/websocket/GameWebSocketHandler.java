@@ -50,9 +50,6 @@ public class GameWebSocketHandler extends TextWebSocketHandler {
             throw new AuthenticationException("Only authenticated users allowed to play a game");
         }
         socketService.registerUser(login, webSocketSession);
-        JSONObject jsonObject=new JSONObject();
-        jsonObject.put("message","Connect");
-        socketService.sendMessageToUser(login,jsonObject);
     }
 
     @Override
@@ -72,7 +69,7 @@ public class GameWebSocketHandler extends TextWebSocketHandler {
 
     @Override
     public void afterConnectionClosed(WebSocketSession webSocketSession, CloseStatus closeStatus) throws Exception {
-        System.out.println("Disonnect");
+
         final String login = (String) webSocketSession.getAttributes().get(SESSIONKEY);
         if (login == null) {
             return;

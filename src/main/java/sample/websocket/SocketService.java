@@ -10,6 +10,8 @@ import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import sample.game.GameService;
+import sample.game.SnapShot;
+import support.Answer;
 
 import java.io.IOException;
 import java.util.Map;
@@ -23,8 +25,10 @@ public class SocketService {
     private Map<String, WebSocketSession> sessions = new ConcurrentHashMap<>();
     @Autowired
     private GameService gameService;
-    public void registerUser(@NotNull String login, @NotNull WebSocketSession webSocketSession) {
+    Answer answer=new Answer();
+    public void registerUser(@NotNull String login, @NotNull WebSocketSession webSocketSession) throws IOException {
         sessions.put(login, webSocketSession);
+        sendMessageToUser(login,answer.messageClient("Connect"));
         try {
             gameService.addWaiters(login);
         }
@@ -32,11 +36,14 @@ public class SocketService {
             System.out.println(e.getMessage());
         }
     }
+    public void transportToMechanics(String login, SnapShot snapShot) throws IOException {
+        if(isConnected(login)) gameService.addSnap(login,snapShot);
+    }
     public boolean isConnected(@NotNull String login) {
         return sessions.containsKey(login) && sessions.get(login).isOpen();
     }
-    public void removeUser(@NotNull String  login)
-    {
+    public void removeUser(@NotNull String  login) throws IOException {
+        sendMessageToUser(login,answer.messageClient("Disconnect"));
         sessions.remove(login);
     }
 

@@ -1,19 +1,15 @@
 package sample.websocket;
 
 
-import objects.User;
 import org.apache.log4j.Logger;
-import org.hibernate.service.spi.InjectService;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
-import sample.game.SnapShot;
+import sample.game.SnapClient;
 import services.UserService;
 
 import javax.naming.AuthenticationException;
@@ -53,15 +49,25 @@ public class GameWebSocketHandler extends TextWebSocketHandler {
     }
 
     @Override
-    protected void handleTextMessage(WebSocketSession session, TextMessage message) throws AuthenticationException {
-        final Long userId = (Long) session.getAttributes().get("userId");
+    protected void handleTextMessage(WebSocketSession session, TextMessage message) throws IOException {
+        final String login  = session.getAttributes().get(SESSIONKEY).toString();
         System.out.println("textmessage");
+        SnapClient snapClient=null;
         try {
             final JSONObject json = new JSONObject(message.getPayload());
-            final SnapShot snapShot=new SnapShot(json);
+             snapClient =new SnapClient(json);
+        }
+        catch (Exception e) {
+            System.out.println("Json error");
+
+        }
+        assert snapClient != null;
+        snapClient.setLogin(login);
+        try{
+            socketService.transportToMechanics(snapClient);
         }
         catch (Exception e){
-            System.out.println("Json error");
+            System.out.println("tramsportToMechanics error");
         }
 
     }

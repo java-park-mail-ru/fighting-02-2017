@@ -10,7 +10,7 @@ import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import sample.game.GameService;
-import sample.game.SnapShot;
+import sample.game.SnapClient;
 import support.Answer;
 
 import java.io.IOException;
@@ -36,8 +36,8 @@ public class SocketService {
             System.out.println(e.getMessage());
         }
     }
-    public void transportToMechanics(String login, SnapShot snapShot) throws IOException {
-        if(isConnected(login)) gameService.addSnap(login,snapShot);
+    public void transportToMechanics(SnapClient snapClient) throws IOException {
+        if(isConnected(snapClient.getLogin())) gameService.addSnap(snapClient);
     }
     public boolean isConnected(@NotNull String login) {
         return sessions.containsKey(login) && sessions.get(login).isOpen();

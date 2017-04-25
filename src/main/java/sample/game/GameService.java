@@ -1,11 +1,9 @@
 package sample.game;
 
 import org.jetbrains.annotations.NotNull;
-import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import sample.websocket.SocketService;
-import support.Coef;
 
 import java.io.IOException;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -23,7 +21,7 @@ public class GameService {
     private GameMechanicsSingleThread gameMechanicsSingleThread;
     private ExecutorService tickExecutor= Executors.newSingleThreadExecutor();
     private @NotNull ConcurrentLinkedQueue<String> waiters = new ConcurrentLinkedQueue<>();
-    private @NotNull ConcurrentLinkedQueue<SnapShot> snapshot = new ConcurrentLinkedQueue<>();
+    private @NotNull ConcurrentLinkedQueue<SnapClient> snapshot = new ConcurrentLinkedQueue<>();
     private @NotNull ConcurrentLinkedQueue<Players> playingNow = new ConcurrentLinkedQueue<>();
     private static class Players{
         //login
@@ -40,14 +38,13 @@ public class GameService {
         });
     }
 
-    public void addSnap(String login, SnapShot snap) throws IOException {
-        tickExecutor.submit(() -> {
-            try {
-                gameMechanicsSingleThread.addSnap(snap);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        });
+    public void addSnap(SnapClient snap) throws IOException {
+        try {
+            tickExecutor.submit(() -> gameMechanicsSingleThread.addSnap(snap));
+        }
+        catch (Exception e){
+
+        }
     }
 }
 

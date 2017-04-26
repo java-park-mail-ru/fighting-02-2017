@@ -43,6 +43,7 @@ public class GameWebSocketHandler extends TextWebSocketHandler {
 
         final String login = (String) webSocketSession.getAttributes().get(SESSIONKEY);
         if ((login == null)) {
+            System.out.println("Only authenticated users allowed to play a game");
             throw new AuthenticationException("Only authenticated users allowed to play a game");
         }
         socketService.registerUser(login, webSocketSession);
@@ -58,6 +59,7 @@ public class GameWebSocketHandler extends TextWebSocketHandler {
              snapClient =new SnapClient(json);
         }
         catch (Exception e) {
+            System.out.println("Json error");
             log.error("Json error");
             return;
         }
@@ -72,6 +74,7 @@ public class GameWebSocketHandler extends TextWebSocketHandler {
 
         final String login = (String) webSocketSession.getAttributes().get(SESSIONKEY);
         if (login == null) {
+            System.out.println("null login");
             log.error("null login");
             return;
         }
@@ -81,6 +84,7 @@ public class GameWebSocketHandler extends TextWebSocketHandler {
 
     @Override
     public void handleTransportError(WebSocketSession webSocketSession, Throwable throwable) {
+        System.out.println("Transport Problem!!!!!");
         log.error("Transport Problem!!!!!");
     }
 

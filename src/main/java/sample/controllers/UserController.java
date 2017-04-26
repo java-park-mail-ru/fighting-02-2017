@@ -110,6 +110,7 @@ public class UserController {
                 if (usersData==null) return  answer.onlyStatus(new HttpStatus().getBadRequest());
                 return answer.withObject(new HttpStatus().getOk(), usersData);
             }
+        System.out.println("Unauthorized");
         log.error("Unauthorized");
         return answer.onlyStatus(new HttpStatus().getUnauthorized());
     }
@@ -122,6 +123,7 @@ public class UserController {
             final String status=userService.changePass(body);
             return answer.onlyStatus(status);
         }
+        System.out.println("Unauthorized");
         log.error("Unauthorized");
         return answer.onlyStatus(new HttpStatus().getUnauthorized());
 
@@ -134,6 +136,8 @@ public class UserController {
             httpSession.removeAttribute(SESSIONKEY);
             return answer.onlyStatus(new HttpStatus().getOk());
         }
+
+        System.out.println("Bad Request");
         log.error("Bad Request");
         return answer.onlyStatus(new HttpStatus().getBadRequest());
     }
@@ -144,6 +148,8 @@ public class UserController {
         try {
             return answer.forLeaders(new HttpStatus().getOk(), userService.getLeaders());
         } catch (JSONException e) {
+
+            System.out.println("Bad Request");
             log.error("Bad Request");
             return answer.onlyStatus(new HttpStatus().getBadRequest());
         }

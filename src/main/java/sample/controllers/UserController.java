@@ -24,7 +24,6 @@ import javax.servlet.http.HttpSession;
 @RestController
 @RequestMapping("/api/user")
 public class UserController {
-   // public  static UserService getStaticUserService(){return staticuserService;}
     static final Logger log = Logger.getLogger(UserController.class);
     private final UserService userService;
     private static final String SESSIONKEY = "user";

@@ -24,18 +24,18 @@ public class GameWebSocketHandler extends TextWebSocketHandler {
     private static final Logger log = Logger.getLogger(UserService.class);
 
 
-    private @NotNull UserService userService;
+    //private @NotNull UserService userService;
 
     private @NotNull SocketService socketService;
 
     @ExceptionHandler(Exception.class)
-    public void handleException(WebSocketSession webSocketSession, Exception e,CloseStatus closeStatus) throws Exception {
+    public void handleException(WebSocketSession webSocketSession, Exception e)  {
         log.error(e.getMessage());
-        afterConnectionClosed(webSocketSession,closeStatus);
+        afterConnectionClosed(webSocketSession,CloseStatus.SERVER_ERROR);
     }
     public  GameWebSocketHandler(@NotNull SocketService socketService,@NotNull  UserService userService){
         this.socketService=socketService;
-        this.userService=userService;
+    //    this.userService=userService;
     }
     @Override
     public void afterConnectionEstablished(WebSocketSession webSocketSession) throws AuthenticationException, IOException {
@@ -49,7 +49,7 @@ public class GameWebSocketHandler extends TextWebSocketHandler {
     }
 
     @Override
-    protected void handleTextMessage(WebSocketSession session, TextMessage message) throws IOException {
+    protected void handleTextMessage(WebSocketSession session, TextMessage message)  {
         final String login  = session.getAttributes().get(SESSIONKEY).toString();
         System.out.println("textmessage");
         SnapClient snapClient=null;
@@ -58,26 +58,21 @@ public class GameWebSocketHandler extends TextWebSocketHandler {
              snapClient =new SnapClient(json);
         }
         catch (Exception e) {
-            System.out.println("Json error");
-
+            log.error("Json error");
+            return;
         }
-        assert snapClient != null;
         snapClient.setLogin(login);
-        try{
-            socketService.transportToMechanics(snapClient);
-        }
-        catch (Exception e){
-            System.out.println("tramsportToMechanics error");
-        }
+        socketService.transportToMechanics(snapClient);
 
     }
 
 
     @Override
-    public void afterConnectionClosed(WebSocketSession webSocketSession, CloseStatus closeStatus) throws Exception {
+    public void afterConnectionClosed(WebSocketSession webSocketSession, CloseStatus closeStatus)  {
 
         final String login = (String) webSocketSession.getAttributes().get(SESSIONKEY);
         if (login == null) {
+            log.error("null login");
             return;
         }
         socketService.removeUser(login);
@@ -85,8 +80,8 @@ public class GameWebSocketHandler extends TextWebSocketHandler {
 
 
     @Override
-    public void handleTransportError(WebSocketSession webSocketSession, Throwable throwable) throws Exception {
-        System.out.println("Transport Problem!!!!!");
+    public void handleTransportError(WebSocketSession webSocketSession, Throwable throwable) {
+        log.error("Transport Problem!!!!!");
     }
 
     @Override

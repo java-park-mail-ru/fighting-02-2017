@@ -21,8 +21,6 @@ public class GameService {
     private GameMechanicsSingleThread gameMechanicsSingleThread;
     private ExecutorService tickExecutor= Executors.newSingleThreadExecutor();
     private @NotNull ConcurrentLinkedQueue<String> waiters = new ConcurrentLinkedQueue<>();
-    //private @NotNull ConcurrentLinkedQueue<SnapClient> snapshot = new ConcurrentLinkedQueue<>();
-  //  private @NotNull ConcurrentLinkedQueue<Players> playingNow = new ConcurrentLinkedQueue<>();
     private static class Players{
         //login
         String first;
@@ -32,19 +30,15 @@ public class GameService {
         tickExecutor.submit(() -> {
             try {
                 gameMechanicsSingleThread.addWaiters(login);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            } catch (IOException ignore) {}
         });
     }
 
-    public void addSnap(SnapClient snap) throws IOException {
+    public void addSnap(SnapClient snap){
         try {
             tickExecutor.submit(() -> gameMechanicsSingleThread.addSnap(snap));
         }
-        catch (Exception e){
-
-        }
+        catch (Exception ignore){}
     }
 }
 

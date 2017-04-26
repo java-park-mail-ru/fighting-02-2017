@@ -24,10 +24,6 @@ public class SnapClient {
             block=json.get("block").toString();
             target=json.get("target").toString();
             hp=(Double) json.get("hp");
-            System.out.println(method);
-            System.out.println(block);
-            System.out.println(target);
-            System.out.println(hp);
     }
     public void setLogin(String login){this.login=login;}
     public String getLogin(){return login;}

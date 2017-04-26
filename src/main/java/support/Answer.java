@@ -39,9 +39,11 @@ public class Answer {
         result.put("message",answer);
         return result;
     }
-    public JSONObject messageClient(Long id){
+    public JSONObject messageClient(Long id,String first,String second){
         final JSONObject result= new JSONObject();
         result.put("key",id);
+        result.put("first",first);
+        result.put("second",second);
         return result;
     }
 

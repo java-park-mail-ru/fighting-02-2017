@@ -71,8 +71,8 @@ public class GameMechanicsSingleThread {
     }
 
     public void startGame(String first, String second) throws IOException {
-        socketService.sendMessageToUser(first, answer.messageClient(id.get()));
-        socketService.sendMessageToUser(second, answer.messageClient(id.get()));
+        socketService.sendMessageToUser(first, answer.messageClient(id.get(),first, second));
+        socketService.sendMessageToUser(second, answer.messageClient(id.get(), first, second));
         playingNow.put(id.get(), new Players(first, second));
         id.getAndIncrement();
     }

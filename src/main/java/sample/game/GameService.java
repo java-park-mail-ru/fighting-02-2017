@@ -21,8 +21,8 @@ public class GameService {
     private GameMechanicsSingleThread gameMechanicsSingleThread;
     private ExecutorService tickExecutor= Executors.newSingleThreadExecutor();
     private @NotNull ConcurrentLinkedQueue<String> waiters = new ConcurrentLinkedQueue<>();
-    private @NotNull ConcurrentLinkedQueue<SnapClient> snapshot = new ConcurrentLinkedQueue<>();
-    private @NotNull ConcurrentLinkedQueue<Players> playingNow = new ConcurrentLinkedQueue<>();
+    //private @NotNull ConcurrentLinkedQueue<SnapClient> snapshot = new ConcurrentLinkedQueue<>();
+  //  private @NotNull ConcurrentLinkedQueue<Players> playingNow = new ConcurrentLinkedQueue<>();
     private static class Players{
         //login
         String first;

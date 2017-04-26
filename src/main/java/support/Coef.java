@@ -5,12 +5,12 @@ package support;
  */
 
 public  class Coef{
-    public static final Integer baseDamage=40;
-    public static final Double MH=0.65;
-    public static final Double MA=0.95;
-    public static final Double ML=0.8;
-    public static final Double BH=0.6;
-    public static final Double BB=0.8;
+    public static  Integer baseDamage;
+    public static  Double MH;
+    public static Double MA;
+    public static Double ML;
+    public static Double BH;
+    public static Double BB;
     public Double kProb;
     public Double damage;
     public Coef(Double kProb, Double damage){

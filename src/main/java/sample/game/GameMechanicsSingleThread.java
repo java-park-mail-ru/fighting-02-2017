@@ -85,19 +85,19 @@ public class GameMechanicsSingleThread {
         coef1.setKMethod(snap1.method);
         coef1.setKBlock(snap1.target, snap2.block);
         coef1.setDamage();
-        snap1.hp = snap1.hp - coef1.damage;
-        if(snap1.hp<0.0) snap1.hp=0.0;
+        snap1.hp = (int) Math.round(snap1.hp - coef1.damage);
+        if(snap1.hp<0) snap1.hp=0;
 
         final Coef coef2 = new Coef();
         coef2.setKMethod(snap2.method);
         coef2.setKBlock(snap2.target, snap1.block);
         coef2.setDamage();
-        snap2.hp = snap2.hp - coef2.damage;
-        if(snap2.hp<0.0) snap2.hp=0.0;
+        snap2.hp = (int)Math.round(snap2.hp - coef2.damage);
+        if(snap2.hp<0) snap2.hp=0;
         final SnapServer snapServer=new SnapServer(snap1,snap2,coef1.damage,coef2.damage);
             socketService.sendMessageToUser(snap1.getLogin(), snapServer.getResult());
             socketService.sendMessageToUser(snap2.getLogin(), snapServer.getResult());
-            if (CompareWithZero(snap1.hp) || (CompareWithZero(snap2.hp))){
+            if (snap1.hp.equals(0) || (snap2.hp.equals(0))){
                 playingNow.remove(snap1.getId());
                 endGame(snap1, snap2);
             }
@@ -117,17 +117,17 @@ public class GameMechanicsSingleThread {
         }
     }
     public void endGame(SnapClient snap1,SnapClient snap2) {
-        if (CompareWithZero(snap1.hp)&&CompareWithZero(snap2.hp)){
+        if ((snap1.hp.equals(0))&&(snap2.hp.equals(0))){
             socketService.sendMessageToUser(snap1.getLogin(), answer.messageClient("Game over. Draw"));
             socketService.sendMessageToUser(snap2.getLogin(), answer.messageClient("Game over. Draw"));
         }
         else{
-            if(CompareWithZero(snap1.hp)){
+            if(snap1.hp.equals(0)){
                 socketService.sendMessageToUser(snap1.getLogin(), answer.messageClient("Game over. You lose."));
                 socketService.sendMessageToUser(snap2.getLogin(), answer.messageClient("Game over. Congratulation! You win."));
             }
             else {
-                if (CompareWithZero(snap2.hp)) {
+                if (snap2.hp.equals(0)) {
                     socketService.sendMessageToUser(snap2.getLogin(), answer.messageClient("Game over. You lose."));
                     socketService.sendMessageToUser(snap1.getLogin(), answer.messageClient("Game over. Congratulation! You win."));
                 }

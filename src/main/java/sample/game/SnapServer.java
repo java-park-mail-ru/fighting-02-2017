@@ -7,12 +7,12 @@ import org.json.JSONObject;
  */
 public class SnapServer {
     private JSONObject result;
-    SnapServer(SnapClient snap1,SnapClient snap2,Double takenDamage1,Double takenDamage2) {
+    SnapServer(SnapClient snap1,SnapClient snap2,Integer takenDamage1,Integer takenDamage2) {
         final JSONObject resultJson = new JSONObject();
         resultJson.put("id",snap1.getId());
         for (int i = 1; i <= 2; i++) {
             final SnapClient snap;
-            final Double takenDamage;
+            final Integer takenDamage;
             if (i==1) {
                 snap = snap1;
                 takenDamage=takenDamage1;

@@ -16,14 +16,14 @@ public class SnapClient {
     String method;
     String block;
     String target;
-    Double hp;
+    Integer hp;
     public @Nullable SnapClient(JSONObject json) throws Exception{
             id=Long.parseLong(json.get("id").toString());
-            System.out.println("id Ok");
+           // System.out.println("id Ok");
             method = json.get("method").toString();
             block=json.get("block").toString();
             target=json.get("target").toString();
-            hp=(Double) json.get("hp");
+            hp=new Integer(json.get("hp").toString());
     }
     public void setLogin(String login){this.login=login;}
     public String getLogin(){return login;}

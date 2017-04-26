@@ -12,8 +12,8 @@ public  class Coef{
     public static Double BH;
     public static Double BB;
     public Double kProb;
-    public Double damage;
-    public Coef(Double kProb, Double damage){
+    public Integer damage;
+    public Coef(Double kProb, Integer damage){
         this.damage=damage;
         this.kProb=kProb;
     }
@@ -33,6 +33,6 @@ public  class Coef{
         else kProb=kProb/2.0;
     }
     public void setDamage(){
-        damage=(1.0-kProb)*baseDamage;
+        damage=(int)Math.round((1.0-kProb)*baseDamage);
     }
 }

@@ -1,6 +1,7 @@
 package sample;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
@@ -30,6 +31,7 @@ import java.util.concurrent.TimeUnit;
 public class Application {
     public static final long IDLE_TIMEOUT_MS = TimeUnit.MINUTES.toMillis(1);
     public static final int BUFFER_SIZE_BYTES = 8192;
+    private static final Logger log = Logger.getLogger(UserService.class);
     public static void main(String[] args) {
         SpringApplication.run(new Object[]{WebSocketConfig.class, Application.class}, args);
         final InputStream inJson = GameData.class.getResourceAsStream("/InitialData.json");
@@ -37,7 +39,7 @@ public class Application {
             final GameData data = new ObjectMapper().readValue(inJson, GameData.class);
             data.setCoef();
         } catch (IOException e) {
-            System.out.println("wrong json");
+            log.error("wrong json in resource file");
         }
     }
 

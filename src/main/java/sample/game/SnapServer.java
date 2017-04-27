@@ -7,6 +7,10 @@ import org.json.JSONObject;
  */
 public class SnapServer {
     private JSONObject result;
+    private String first;
+    private String second;
+    public String getFirst(){return first;}
+    public String getSecond(){return second;}
     SnapServer(SnapClient snap1,SnapClient snap2,Integer takenDamage1,Integer takenDamage2) {
         final JSONObject resultJson = new JSONObject();
         resultJson.put("id",snap1.getId());
@@ -23,6 +27,8 @@ public class SnapServer {
             }
             final JSONObject json = new JSONObject();
             json.put("login", snap.getLogin());
+            if(i==1) first=snap.getLogin();
+            if(i==2) second=snap.getLogin();
             json.put("hp", snap.hp);
             json.put("takenDamage", takenDamage);
             json.put("block", snap.block);

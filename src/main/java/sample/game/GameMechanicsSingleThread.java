@@ -11,6 +11,7 @@ import support.Answer;
 import support.Coef;
 
 import java.io.IOException;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutorService;
@@ -76,25 +77,23 @@ public class GameMechanicsSingleThread {
         playingNow.put(id.get(), new Players(first, second));
         id.getAndIncrement();
     }
-    public boolean CompareWithZero(Double num){
-        return Math.abs(num)<0.0000001;
-    }
 
-    public void gmStemp(SnapClient snap1, SnapClient snap2)  {
+    public void  gmStemp(SnapClient snap1, SnapClient snap2)  {
         final Coef coef1 = new Coef();
         coef1.setKMethod(snap1.method);
         coef1.setKBlock(snap1.target, snap2.block);
         coef1.setDamage();
-        snap1.hp = (int) Math.round(snap1.hp - coef1.damage);
+        snap1.hp = Math.round(snap1.hp - coef1.damage);
         if(snap1.hp<0) snap1.hp=0;
 
         final Coef coef2 = new Coef();
         coef2.setKMethod(snap2.method);
         coef2.setKBlock(snap2.target, snap1.block);
         coef2.setDamage();
-        snap2.hp = (int)Math.round(snap2.hp - coef2.damage);
+        snap2.hp = Math.round(snap2.hp - coef2.damage);
         if(snap2.hp<0) snap2.hp=0;
         final SnapServer snapServer=new SnapServer(snap1,snap2,coef1.damage,coef2.damage);
+
             socketService.sendMessageToUser(snap1.getLogin(), snapServer.getResult());
             socketService.sendMessageToUser(snap2.getLogin(), snapServer.getResult());
             if (snap1.hp.equals(0) || (snap2.hp.equals(0))){

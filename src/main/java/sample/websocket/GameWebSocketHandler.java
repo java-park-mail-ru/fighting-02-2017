@@ -50,21 +50,29 @@ public class GameWebSocketHandler extends TextWebSocketHandler {
     }
 
     @Override
-    protected void handleTextMessage(WebSocketSession session, TextMessage message)  {
+    protected void handleTextMessage(WebSocketSession session, TextMessage textMessage)  {
         final String login  = session.getAttributes().get(SESSIONKEY).toString();
         System.out.println("textmessage");
-        SnapClient snapClient=null;
         try {
-            final JSONObject json = new JSONObject(message.getPayload());
-             snapClient =new SnapClient(json);
+            final Message message=new Message(textMessage.getPayload());
+            switch (message.getType().toLowerCase()){
+                case "step":{
+                    final SnapClient snapClient = new SnapClient(message.getContent());
+                    snapClient.setLogin(login);
+                    socketService.transportToMechanics(snapClient);
+                }
+                case "pulse":{
+                    //later
+                  //  content=Boolean.parseBoolean(json.get("flag").toString());
+                }
+                default:{
+                    log.error("t");
+                }
+            }
         }
         catch (Exception e) {
-            System.out.println("Json error");
             log.error("Json error");
-            return;
         }
-        snapClient.setLogin(login);
-        socketService.transportToMechanics(snapClient);
 
     }
 

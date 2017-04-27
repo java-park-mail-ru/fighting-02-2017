@@ -35,10 +35,8 @@ public class GameService {
     }
 
     public void addSnap(SnapClient snap){
-        try {
-            tickExecutor.submit(() -> gameMechanicsSingleThread.addSnap(snap));
-        }
-        catch (Exception ignore){}
+        tickExecutor.submit(() -> gameMechanicsSingleThread.addSnap(snap));
+
     }
 }
 

@@ -28,20 +28,24 @@ public class SocketService {
     private Map<String, WebSocketSession> sessions = new ConcurrentHashMap<>();
     @Autowired
     private GameService gameService;
-    Answer answer=new Answer();
+    Answer answer = new Answer();
+
     public void registerUser(@NotNull String login, @NotNull WebSocketSession webSocketSession) {
         sessions.put(login, webSocketSession);
-        sendMessageToUser(login,answer.messageClient("Connect"));
+        sendMessageToUser(login, answer.messageClient("Connect"));
         gameService.addWaiters(login);
     }
+
     public void transportToMechanics(SnapClient snapClient) {
-        if(isConnected(snapClient.getLogin())) gameService.addSnap(snapClient);
+        if (isConnected(snapClient.getLogin())) gameService.addSnap(snapClient);
     }
+
     public boolean isConnected(@NotNull String login) {
         return sessions.containsKey(login) && sessions.get(login).isOpen();
     }
-    public void removeUser(@NotNull String  login) {
-        sendMessageToUser(login,answer.messageClient("Disconnect"));
+
+    public void removeUser(@NotNull String login) {
+        sendMessageToUser(login, answer.messageClient("Disconnect"));
         sessions.remove(login);
     }
 
@@ -50,30 +54,32 @@ public class SocketService {
         if (webSocketSession != null && webSocketSession.isOpen()) {
             try {
                 webSocketSession.close(closeStatus);
-            } catch (IOException ignore) {}
+            } catch (IOException ignore) {
+            }
         }
     }
+
     public void sendMessageToUser(@NotNull String login, @NotNull JSONObject json) {
         final WebSocketSession webSocketSession = sessions.get(login);
         if (webSocketSession == null) {
 
             System.out.println("no game websocket for user " + login);
             log.error("no game websocket for user " + login);
-            cutDownConnection(login,CloseStatus.SESSION_NOT_RELIABLE);
+            cutDownConnection(login, CloseStatus.SESSION_NOT_RELIABLE);
         }
         if (!webSocketSession.isOpen()) {
             System.out.println("session is closed or not exsists");
             log.error("session is closed or not exsists");
-            cutDownConnection(login,CloseStatus.SESSION_NOT_RELIABLE);
+            cutDownConnection(login, CloseStatus.SESSION_NOT_RELIABLE);
         }
         try {
             webSocketSession.sendMessage(new TextMessage(json.toString()));
         } catch (JsonProcessingException | WebSocketException e) {
             System.out.println("Unnable to send message");
             log.error("Unnable to send message", e);
-            cutDownConnection(login,CloseStatus.SESSION_NOT_RELIABLE);
+            cutDownConnection(login, CloseStatus.SESSION_NOT_RELIABLE);
 
+        } catch (Exception ignore) {
         }
-        catch (Exception ignore){}
     }
 }

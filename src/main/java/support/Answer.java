@@ -12,7 +12,7 @@ public class Answer {
 
     //public String getResult() {
     //    return result;
-   // }
+    // }
 
     public String withObject(String status, Mutual user) {
         final JSONObject answer = new JSONObject();
@@ -27,23 +27,24 @@ public class Answer {
         return answer.toString();
     }
 
-    public String  forLeaders(String status, JSONArray leaders) {
+    public String forLeaders(String status, JSONArray leaders) {
         final JSONObject answer = new JSONObject();
         answer.put("leaders", leaders);
         answer.put("status", status);
-        return  answer.toString();
+        return answer.toString();
     }
 
-    public JSONObject messageClient(String answer){
-        final JSONObject result= new JSONObject();
-        result.put("message",answer);
+    public JSONObject messageClient(String answer) {
+        final JSONObject result = new JSONObject();
+        result.put("message", answer);
         return result;
     }
-    public JSONObject messageClient(Long id,String first,String second){
-        final JSONObject result= new JSONObject();
-        result.put("key",id);
-        result.put("first",first);
-        result.put("second",second);
+
+    public JSONObject messageClient(Long id, String first, String second) {
+        final JSONObject result = new JSONObject();
+        result.put("key", id);
+        result.put("first", first);
+        result.put("second", second);
         return result;
     }
 

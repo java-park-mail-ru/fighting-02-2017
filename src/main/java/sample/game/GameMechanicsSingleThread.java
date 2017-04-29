@@ -11,8 +11,7 @@ import support.Answer;
 import support.Coef;
 
 import java.io.IOException;
-import java.util.Objects;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.HashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -33,8 +32,7 @@ public class GameMechanicsSingleThread {
     private ExecutorService tickExecutor = Executors.newSingleThreadExecutor();
     private AtomicLong id = new AtomicLong(1);
     private @NotNull ConcurrentLinkedQueue<String> waiters = new ConcurrentLinkedQueue<>();
-    //private @NotNull ConcurrentLinkedQueue<SnapClient> snapshot = new ConcurrentLinkedQueue<>();
-    private @NotNull ConcurrentHashMap<Long, Players> playingNow = new ConcurrentHashMap<>();
+    private @NotNull HashMap<Long, Players> playingNow = new HashMap<>();
 
     private static class Players {
         private String first;
@@ -55,7 +53,11 @@ public class GameMechanicsSingleThread {
         public boolean snapExist() {
             return snapFlag;
         }
-        public void setFlagFalse(){snapFlag=false;}
+
+        public void setFlagFalse() {
+            snapFlag = false;
+        }
+
         public @NotNull SnapClient getSnap() {
             return moreEarlySnap;
         }
@@ -72,42 +74,41 @@ public class GameMechanicsSingleThread {
     }
 
     public void startGame(String first, String second) throws IOException {
-        socketService.sendMessageToUser(first, answer.messageClient(id.get(),first, second));
+        socketService.sendMessageToUser(first, answer.messageClient(id.get(), first, second));
         socketService.sendMessageToUser(second, answer.messageClient(id.get(), first, second));
         playingNow.put(id.get(), new Players(first, second));
         id.getAndIncrement();
     }
 
-    public void  gmStemp(SnapClient snap1, SnapClient snap2)  {
+    public void gmStemp(SnapClient snap1, SnapClient snap2) {
         final Coef coef1 = new Coef();
         coef1.setKMethod(snap1.method);
         coef1.setKBlock(snap1.target, snap2.block);
         coef1.setDamage();
         snap1.hp = Math.round(snap1.hp - coef1.damage);
-        if(snap1.hp<0) snap1.hp=0;
+        if (snap1.hp < 0) snap1.hp = 0;
 
         final Coef coef2 = new Coef();
         coef2.setKMethod(snap2.method);
         coef2.setKBlock(snap2.target, snap1.block);
         coef2.setDamage();
         snap2.hp = Math.round(snap2.hp - coef2.damage);
-        if(snap2.hp<0) snap2.hp=0;
-        final SnapServer snapServer=new SnapServer(snap1,snap2,coef1.damage,coef2.damage);
+        if (snap2.hp < 0) snap2.hp = 0;
+        final SnapServer snapServer = new SnapServer(snap1, snap2, coef1.damage, coef2.damage);
 
-            socketService.sendMessageToUser(snap1.getLogin(), snapServer.getResult());
-            socketService.sendMessageToUser(snap2.getLogin(), snapServer.getResult());
-            if (snap1.hp.equals(0) || (snap2.hp.equals(0))){
-                playingNow.remove(snap1.getId());
-                endGame(snap1, snap2);
-            }
-            else {
-                final Players players = playingNow.get(snap1.getId());
-                players.setFlagFalse();
-            }
+        socketService.sendMessageToUser(snap1.getLogin(), snapServer.getResult());
+        socketService.sendMessageToUser(snap2.getLogin(), snapServer.getResult());
+        if (snap1.hp.equals(0) || (snap2.hp.equals(0))) {
+            playingNow.remove(snap1.getId());
+            endGame(snap1, snap2);
+        } else {
+            final Players players = playingNow.get(snap1.getId());
+            players.setFlagFalse();
+        }
 
     }
 
-    public void addSnap(SnapClient snap)  {
+    public void addSnap(SnapClient snap) {
         final Players players = playingNow.get(snap.getId());
         if (players.snapExist()) {
             gmStemp(players.getSnap(), snap);
@@ -115,22 +116,20 @@ public class GameMechanicsSingleThread {
             players.setSnap(snap);
         }
     }
-    public void endGame(SnapClient snap1,SnapClient snap2) {
-        if ((snap1.hp.equals(0))&&(snap2.hp.equals(0))){
+
+    public void endGame(SnapClient snap1, SnapClient snap2) {
+        if ((snap1.hp.equals(0)) && (snap2.hp.equals(0))) {
             socketService.sendMessageToUser(snap1.getLogin(), answer.messageClient("Game over. Draw"));
             socketService.sendMessageToUser(snap2.getLogin(), answer.messageClient("Game over. Draw"));
-        }
-        else{
-            if(snap1.hp.equals(0)){
+        } else {
+            if (snap1.hp.equals(0)) {
                 socketService.sendMessageToUser(snap1.getLogin(), answer.messageClient("Game over. You lose."));
                 socketService.sendMessageToUser(snap2.getLogin(), answer.messageClient("Game over. Congratulation! You win."));
-            }
-            else {
+            } else {
                 if (snap2.hp.equals(0)) {
                     socketService.sendMessageToUser(snap2.getLogin(), answer.messageClient("Game over. You lose."));
                     socketService.sendMessageToUser(snap1.getLogin(), answer.messageClient("Game over. Congratulation! You win."));
-                }
-                else{
+                } else {
                     log.error("Logic error");
                     socketService.cutDownConnection(snap1.getLogin(), CloseStatus.SERVER_ERROR);
                     socketService.cutDownConnection(snap2.getLogin(), CloseStatus.SERVER_ERROR);

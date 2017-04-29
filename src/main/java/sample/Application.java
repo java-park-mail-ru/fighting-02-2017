@@ -2,36 +2,28 @@ package sample;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.log4j.Logger;
-import org.springframework.beans.factory.BeanFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.web.socket.WebSocketHandler;
 import org.springframework.web.socket.handler.PerConnectionWebSocketHandler;
-import sample.game.GameService;
 import sample.websocket.GameWebSocketHandler;
-import sample.websocket.SocketService;
 import services.UserService;
-import sample.controllers.UserController;
-import support.Coef;
 import support.GameData;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Created by Denis on 21.02.2017.
  */
 
 @SpringBootApplication
-@ComponentScan(basePackages = {"services","sample"})
+@ComponentScan(basePackages = {"services", "sample"})
 public class Application {
-    public static final long IDLE_TIMEOUT_MS = TimeUnit.MINUTES.toMillis(1);
-    public static final int BUFFER_SIZE_BYTES = 8192;
     private static final Logger log = Logger.getLogger(UserService.class);
+
     public static void main(String[] args) {
         SpringApplication.run(new Object[]{WebSocketConfig.class, Application.class}, args);
         final InputStream inJson = GameData.class.getResourceAsStream("/InitialData.json");

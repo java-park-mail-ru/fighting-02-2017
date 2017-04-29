@@ -19,22 +19,25 @@ public class GameService {
     private SocketService socketService;
     @Autowired
     private GameMechanicsSingleThread gameMechanicsSingleThread;
-    private ExecutorService tickExecutor= Executors.newSingleThreadExecutor();
+    private ExecutorService tickExecutor = Executors.newSingleThreadExecutor();
     private @NotNull ConcurrentLinkedQueue<String> waiters = new ConcurrentLinkedQueue<>();
-    private static class Players{
+
+    private static class Players {
         //login
         String first;
         String second;
     }
+
     public void addWaiters(String login) {
         tickExecutor.submit(() -> {
             try {
                 gameMechanicsSingleThread.addWaiters(login);
-            } catch (IOException ignore) {}
+            } catch (IOException ignore) {
+            }
         });
     }
 
-    public void addSnap(SnapClient snap){
+    public void addSnap(SnapClient snap) {
         tickExecutor.submit(() -> gameMechanicsSingleThread.addSnap(snap));
 
     }

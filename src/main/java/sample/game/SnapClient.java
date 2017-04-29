@@ -1,11 +1,7 @@
 package sample.game;
 
-import jdk.nashorn.api.scripting.JSObject;
 import org.jetbrains.annotations.Nullable;
 import org.json.JSONObject;
-import support.Coef;
-
-import java.util.Locale;
 
 /**
  * Created by andrey on 24.04.17.
@@ -17,15 +13,25 @@ public class SnapClient {
     String block;
     String target;
     Integer hp;
-    public @Nullable SnapClient(JSONObject json) throws Exception{
-            id=Long.parseLong(json.get("id").toString());
-           // System.out.println("id Ok");
-            method = json.get("method").toString();
-            block=json.get("block").toString();
-            target=json.get("target").toString();
-            hp=new Integer(json.get("hp").toString());
+
+    public @Nullable SnapClient(JSONObject json){
+        id = Long.parseLong(json.get("id").toString());
+        // System.out.println("id Ok");
+        method = json.get("method").toString();
+        block = json.get("block").toString();
+        target = json.get("target").toString();
+        hp = new Integer(json.get("hp").toString());
     }
-    public void setLogin(String login){this.login=login;}
-    public String getLogin(){return login;}
-    public Long getId(){return id;}
+
+    public void setLogin(String login) {
+        this.login = login;
+    }
+
+    public String getLogin() {
+        return login;
+    }
+
+    public Long getId() {
+        return id;
+    }
 }

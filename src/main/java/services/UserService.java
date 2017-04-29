@@ -6,19 +6,13 @@ import objects.UsersData;
 import org.apache.log4j.Logger;
 import org.jetbrains.annotations.Nullable;
 import org.json.JSONArray;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import services.mappers.UserMapper;
 
-import javax.activation.DataSource;
-import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 /**
@@ -34,7 +28,8 @@ public class UserService {
     public UserService(javax.sql.DataSource dataSource) {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
     }
-    public String register(User user)  {
+
+    public String register(User user) {
         if (user.getPassword().isEmpty() || user.getLogin().isEmpty()
                 || (user.getPassword().length() < 8) || (user.getLogin().matches("[а-яА-ЯёЁ]+"))
                 || (user.getLogin().length() < 4)) {
@@ -43,8 +38,9 @@ public class UserService {
         try {
             registerUser(user);
             return new HttpStatus().getOk();
+        } catch (DataAccessException e) {
+            return new HttpStatus().getForbidden();
         }
-        catch(DataAccessException e){ return new HttpStatus().getForbidden();}
     }
 
     @Transactional
@@ -68,28 +64,28 @@ public class UserService {
         return userDB != null && user.comparePass.test(userDB.getPassword());
     }
 
-    public @Nullable User getUser(String login){
-            final String SQL = "SELECT * FROM users WHERE login = ?";
-            try {
-                final User userDB = jdbcTemplate.queryForObject(SQL, new Object[]{login}, new UserMapper());
-                return userDB;
-            }
-            catch(DataAccessException e) {return null;}
+    public @Nullable User getUser(String login) {
+        final String SQL = "SELECT * FROM users WHERE login = ?";
+        try {
+            final User userDB = jdbcTemplate.queryForObject(SQL, new Object[]{login}, new UserMapper());
+            return userDB;
+        } catch (DataAccessException e) {
+            return null;
+        }
     }
 
-    public String login(User user){
+    public String login(User user) {
         try {
             if (checkINputPasAndLog(user)) return new HttpStatus().getOk();
             log.error("Not Found");
             return new HttpStatus().getNotFound();
-        }
-        catch(DataAccessException e){
+        } catch (DataAccessException e) {
             log.error("Not Found");
             return new HttpStatus().getNotFound();
         }
     }
 
-    public String update(User newUser){
+    public String update(User newUser) {
         try {
             final Integer rowNum = updateUsers(newUser);
             if (rowNum == 0) {
@@ -97,8 +93,7 @@ public class UserService {
                 return new HttpStatus().getBadRequest();
             }
             return new HttpStatus().getOk();
-        }
-        catch(DataAccessException e){
+        } catch (DataAccessException e) {
             log.error("Bad Request");
             return new HttpStatus().getBadRequest();
         }
@@ -124,37 +119,35 @@ public class UserService {
                 return null;
             }
             return usersData;
-        }
-        catch(DataAccessException e){
+        } catch (DataAccessException e) {
             return null;
         }
     }
 
     public String changePass(User user) {
-           try {
-               if (!checkINputPasAndLog(user)) {
-                   log.error("Not Found");
-                   return new HttpStatus().getNotFound();
-               }
-           }
-           catch(DataAccessException e){
-               return new HttpStatus().getNotFound();
-           }
-
-            final String SQL = "UPDATE users SET password= ? where login=?";
-            try {
-                final int rownum = jdbcTemplate.update(
-                        SQL, user.getNewHashPassword(), user.getLogin());
-                if (rownum == 0) {
-                    log.error("Bad Request");
-                    return new HttpStatus().getBadRequest();
-                }
+        try {
+            if (!checkINputPasAndLog(user)) {
+                log.error("Not Found");
+                return new HttpStatus().getNotFound();
             }
-            catch(DataAccessException e){
+        } catch (DataAccessException e) {
+            return new HttpStatus().getNotFound();
+        }
+
+        final String SQL = "UPDATE users SET password= ? where login=?";
+        try {
+            final int rownum = jdbcTemplate.update(
+                    SQL, user.getNewHashPassword(), user.getLogin());
+            if (rownum == 0) {
+                log.error("Bad Request");
                 return new HttpStatus().getBadRequest();
             }
-            return new HttpStatus().getOk();
+        } catch (DataAccessException e) {
+            return new HttpStatus().getBadRequest();
         }
+        return new HttpStatus().getOk();
+    }
+
     public JSONArray getLeaders() {
         final JSONArray jsonArray = new JSONArray();
         final String SQL = "SELECT login, rating FROM usersdata ORDER BY rating DESC LIMIT 20";

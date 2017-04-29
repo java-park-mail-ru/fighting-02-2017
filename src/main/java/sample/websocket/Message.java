@@ -1,20 +1,31 @@
 package sample.websocket;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import org.json.JSONObject;
-import sample.game.SnapClient;
 
 /**
  * Created by andrey on 27.04.17.
  */
 public class Message {
-    private String type;
+    public enum Type {step}
+
+    Type type;
     private JSONObject content;
-    public String getType(){return type;}
-    public JSONObject getContent(){return content;}
-    public Message(String textmessage){
+
+    public Type getType() {
+        return type;
+    }
+
+    public JSONObject getContent() {
+        return content;
+    }
+
+    public Message(String textmessage) {
         content = new JSONObject(textmessage);
-        type=content.get("type").toString();
+        try {
+            type = Type.valueOf(content.get("type").toString());
+        } catch (IllegalArgumentException e) {
+            type = null;
+        }
         content.remove("type");
     }
 }

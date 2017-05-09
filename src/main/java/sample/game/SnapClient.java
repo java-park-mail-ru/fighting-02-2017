@@ -14,7 +14,7 @@ public class SnapClient {
     String target;
     Integer hp;
 
-    public @Nullable SnapClient(JSONObject json){
+    public @Nullable SnapClient(JSONObject json) {
         id = Long.parseLong(json.get("id").toString());
         // System.out.println("id Ok");
         method = json.get("method").toString();

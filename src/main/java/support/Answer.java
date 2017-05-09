@@ -4,6 +4,8 @@ import objects.Mutual;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
+
 /**
  * Created by andrey on 06.04.17.
  */
@@ -37,6 +39,14 @@ public class Answer {
     public JSONObject messageClient(String answer) {
         final JSONObject result = new JSONObject();
         result.put("message", answer);
+        return result;
+    }
+
+    public JSONObject messageClient(Long id, ArrayList<String> logins) {
+        final JSONObject result = new JSONObject();
+        result.put("key", id);
+        result.put("first", logins.get(0));
+        result.put("second", logins.get(1));
         return result;
     }
 

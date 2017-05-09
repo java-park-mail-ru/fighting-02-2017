@@ -22,12 +22,6 @@ public class GameService {
     private ExecutorService tickExecutor = Executors.newSingleThreadExecutor();
     private @NotNull ConcurrentLinkedQueue<String> waiters = new ConcurrentLinkedQueue<>();
 
-    private static class Players {
-        //login
-        String first;
-        String second;
-    }
-
     public void addWaiters(String login) {
         tickExecutor.submit(() -> {
             try {

@@ -25,6 +25,7 @@ public class UserController {
     private static final String URL = "*";
 
     public UserController(UserService userService) {
+
         this.userService = userService;
     }
 
@@ -40,19 +41,6 @@ public class UserController {
 
     }
 
-    /* @ExceptionHandler(Exception.class)
-     public String handleException(HttpServletRequest request, Exception e){
-
-         final String method=request.getRequestURI().replaceAll("/api/user","");
-         if (method.equals(URIRequest.signup))
-             return answer.onlyStatus(new HttpStatus().getForbidden());
-         if (method.equals(URIRequest.login)||method.equals(URIRequest.get))
-             return answer.onlyStatus((new HttpStatus().getNotFound()));
-         if (method.equals(URIRequest.update)||method.equals(URIRequest.updateInfo)||method.equals(URIRequest.changePass))
-             return answer.onlyStatus(new HttpStatus().getBadRequest());
-
-         return answer.onlyStatus("It is strange");
-     }*/
     @CrossOrigin(origins = URL, maxAge = 3600)
     @RequestMapping(path = URIRequest.login, method = RequestMethod.POST, produces = "application/json", consumes = "application/json")
     public String loginUser(@RequestBody User body, HttpSession httpSession) {

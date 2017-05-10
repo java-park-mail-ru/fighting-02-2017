@@ -20,7 +20,6 @@ public class UsersData implements Mutual {
     public UsersData() {
 
     }
-
     @JsonCreator
     public UsersData(
             @JsonProperty("login") String login,

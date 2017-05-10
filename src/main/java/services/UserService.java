@@ -12,6 +12,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import services.mappers.UserMapper;
+import services.mappers.UsersDataMapper;
 
 import java.util.List;
 
@@ -29,17 +30,17 @@ public class UserService {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
     }
 
-    public String register(User user) {
+    public UsersData register(User user) {
         if (user.getPassword().isEmpty() || user.getLogin().isEmpty()
                 || (user.getPassword().length() < 8) || (user.getLogin().matches("[а-яА-ЯёЁ]+"))
                 || (user.getLogin().length() < 4)) {
-            return new HttpStatus().getForbidden();
+            return null;
         }
         try {
             registerUser(user);
-            return new HttpStatus().getOk();
+            return new UsersData(user.getLogin(),0,0,0,0,0,0,0);
         } catch (DataAccessException e) {
-            return new HttpStatus().getForbidden();
+            return null;
         }
     }
 
@@ -64,6 +65,16 @@ public class UserService {
         return userDB != null && user.comparePass.test(userDB.getPassword());
     }
 
+    @Transactional
+    private UsersData getUsersData(String login){
+        final String SQL = "SELECT * FROM usersdata WHERE login = ?";
+        try {
+            final UsersData usersData = jdbcTemplate.queryForObject(SQL, new Object[]{login}, new UsersDataMapper());
+            return usersData;
+        } catch (DataAccessException e) {
+            return null;
+        }
+    }
     public @Nullable User getUser(String login) {
         final String SQL = "SELECT * FROM users WHERE login = ?";
         try {
@@ -74,14 +85,15 @@ public class UserService {
         }
     }
 
-    public String login(User user) {
+    public @Nullable  UsersData login(User user) {
         try {
-            if (checkINputPasAndLog(user)) return new HttpStatus().getOk();
+            if (checkINputPasAndLog(user)) return getUsersData(user.getLogin());
+
             log.error("Not Found");
-            return new HttpStatus().getNotFound();
+            return null;
         } catch (DataAccessException e) {
             log.error("Not Found");
-            return new HttpStatus().getNotFound();
+            return null;
         }
     }
 

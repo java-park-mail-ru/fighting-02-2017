@@ -75,11 +75,10 @@ public class UserService {
             return null;
         }
     }
-    public @Nullable User getUser(String login) {
+    public @Nullable UsersData getUser(String login) {
         final String SQL = "SELECT * FROM users WHERE login = ?";
         try {
-            final User userDB = jdbcTemplate.queryForObject(SQL, new Object[]{login}, new UserMapper());
-            return userDB;
+            return getUsersData(login);
         } catch (DataAccessException e) {
             return null;
         }

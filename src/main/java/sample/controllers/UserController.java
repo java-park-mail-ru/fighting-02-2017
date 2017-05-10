@@ -69,8 +69,9 @@ public class UserController {
     public String getUser(HttpSession httpSession) {
         final String login = (String) httpSession.getAttribute(SESSIONKEY);
         if (login == null) return answer.onlyStatus(new HttpStatus().getNotFound());
-        final User user = userService.getUser(login);
-        return answer.withObject(new HttpStatus().getOk(), user);
+        final UsersData usersData = userService.getUser(login);
+        if(usersData!=null) return answer.withObject(new HttpStatus().getOk(), usersData);
+        return answer.onlyStatus(new HttpStatus().getNotFound());
     }
 
     @CrossOrigin(origins = URL, maxAge = 3600)

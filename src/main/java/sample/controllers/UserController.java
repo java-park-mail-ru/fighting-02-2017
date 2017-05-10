@@ -45,16 +45,22 @@ public class UserController {
     @RequestMapping(path = URIRequest.login, method = RequestMethod.POST, produces = "application/json", consumes = "application/json")
     public String loginUser(@RequestBody User body, HttpSession httpSession) {
         final UsersData usersData = userService.login(body);
-        if(usersData!=null)  return answer.withObject(new HttpStatus().getOk(),usersData);
+        if(usersData!=null)  {
+            httpSession.setAttribute(SESSIONKEY, body.getLogin());
+            return answer.withObject(new HttpStatus().getOk(),usersData);
+        }
         return answer.onlyStatus(new HttpStatus().getNotFound());
     }
 
     @CrossOrigin(origins = URL, maxAge = 3600)
     @RequestMapping(path = URIRequest.signup, method = RequestMethod.POST, produces = "application/json",
             consumes = "application/json")
-    public String registerUser(@RequestBody User body) {
+    public String registerUser(@RequestBody User body,HttpSession httpSession) {
         final UsersData usersData = userService.register(body);
-        if(usersData!=null) return answer.withObject(new HttpStatus().getOk(),usersData);
+        if(usersData!=null) {
+            httpSession.setAttribute(SESSIONKEY, body.getLogin());
+            return answer.withObject(new HttpStatus().getOk(),usersData);
+        }
         return answer.onlyStatus(new HttpStatus().getForbidden());
     }
 

@@ -10,12 +10,6 @@ import java.util.ArrayList;
  * Created by andrey on 06.04.17.
  */
 public class Answer {
-    //private String result;
-
-    //public String getResult() {
-    //    return result;
-    // }
-
     public String withObject(String status, Mutual user) {
         final JSONObject answer = new JSONObject();
         answer.put("status", status);

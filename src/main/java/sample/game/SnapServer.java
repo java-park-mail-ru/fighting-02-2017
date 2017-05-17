@@ -2,6 +2,7 @@ package sample.game;
 
 import org.json.JSONObject;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -12,6 +13,7 @@ public class SnapServer {
     private JSONObject result;
     private String first;
     private String second;
+    private Map<SnapClient, Integer> map = new HashMap<>();
 
     public String getFirst() {
         return first;
@@ -21,7 +23,13 @@ public class SnapServer {
         return second;
     }
 
-    SnapServer(Map<SnapClient, Integer> map) {
+
+    SnapServer(Players players) {
+        AtomicInteger i = new AtomicInteger(0);
+        Damage.getInstance().calculate(players.getSnaps()).forEach(item -> map.put(players.getSnaps().get(i.getAndIncrement()), item));
+    }
+
+    public JSONObject getJson() {
         final JSONObject resultJson = new JSONObject();
         AtomicInteger i = new AtomicInteger(0);
         map.forEach((snapClient, takenDamage) -> {
@@ -37,10 +45,6 @@ public class SnapServer {
                 resultJson.put("first", json);
             } else resultJson.put("second", json);
         });
-        result = resultJson;
-    }
-
-    public JSONObject getResult() {
-        return result;
+        return resultJson;
     }
 }

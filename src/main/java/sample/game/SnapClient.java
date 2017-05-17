@@ -1,5 +1,8 @@
 package sample.game;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import org.jetbrains.annotations.Nullable;
 import org.json.JSONObject;
 
@@ -8,19 +11,23 @@ import org.json.JSONObject;
  */
 public class SnapClient {
     private Long id;
+    @JsonIgnore
     private String login;
     String method;
     String block;
     String target;
     Integer hp;
-
-    public @Nullable SnapClient(JSONObject json) {
-        id = Long.parseLong(json.get("id").toString());
-        // System.out.println("id Ok");
-        method = json.get("method").toString();
-        block = json.get("block").toString();
-        target = json.get("target").toString();
-        hp = new Integer(json.get("hp").toString());
+   @JsonCreator
+    public SnapClient( @JsonProperty("id") Long id,
+                        @JsonProperty("method") String method,
+                       @JsonProperty("block") String block,
+                       @JsonProperty("target") String target,
+                       @JsonProperty("hp") Integer hp) {
+        this.id=id;
+        this.method=method;
+        this.block=block;
+        this.target=target;
+        this.hp=hp;
     }
 
     public void setLogin(String login) {

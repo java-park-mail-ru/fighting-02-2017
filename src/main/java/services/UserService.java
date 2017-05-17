@@ -38,7 +38,7 @@ public class UserService {
         }
         try {
             registerUser(user);
-            return new UsersData(user.getLogin(),0,0,0,0,0,0,0);
+            return new UsersData(user.getLogin(), 0, 0, 0, 0, 0, 0, 0);
         } catch (DataAccessException e) {
             return null;
         }
@@ -66,7 +66,7 @@ public class UserService {
     }
 
     @Transactional
-    private UsersData getUsersData(String login){
+    private UsersData getUsersData(String login) {
         final String SQL = "SELECT * FROM usersdata WHERE login = ?";
         try {
             final UsersData usersData = jdbcTemplate.queryForObject(SQL, new Object[]{login}, new UsersDataMapper());
@@ -75,6 +75,7 @@ public class UserService {
             return null;
         }
     }
+
     public @Nullable UsersData getUser(String login) {
         final String SQL = "SELECT * FROM users WHERE login = ?";
         try {
@@ -84,7 +85,7 @@ public class UserService {
         }
     }
 
-    public @Nullable  UsersData login(User user) {
+    public @Nullable UsersData login(User user) {
         try {
             if (checkINputPasAndLog(user)) return getUsersData(user.getLogin());
 

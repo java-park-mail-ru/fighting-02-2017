@@ -45,9 +45,9 @@ public class UserController {
     @RequestMapping(path = URIRequest.login, method = RequestMethod.POST, produces = "application/json", consumes = "application/json")
     public String loginUser(@RequestBody User body, HttpSession httpSession) {
         final UsersData usersData = userService.login(body);
-        if(usersData!=null)  {
+        if (usersData != null) {
             httpSession.setAttribute(SESSIONKEY, body.getLogin());
-            return answer.withObject(new HttpStatus().getOk(),usersData);
+            return answer.withObject(new HttpStatus().getOk(), usersData);
         }
         return answer.onlyStatus(new HttpStatus().getNotFound());
     }
@@ -55,11 +55,11 @@ public class UserController {
     @CrossOrigin(origins = URL, maxAge = 3600)
     @RequestMapping(path = URIRequest.signup, method = RequestMethod.POST, produces = "application/json",
             consumes = "application/json")
-    public String registerUser(@RequestBody User body,HttpSession httpSession) {
+    public String registerUser(@RequestBody User body, HttpSession httpSession) {
         final UsersData usersData = userService.register(body);
-        if(usersData!=null) {
+        if (usersData != null) {
             httpSession.setAttribute(SESSIONKEY, body.getLogin());
-            return answer.withObject(new HttpStatus().getOk(),usersData);
+            return answer.withObject(new HttpStatus().getOk(), usersData);
         }
         return answer.onlyStatus(new HttpStatus().getForbidden());
     }
@@ -70,7 +70,7 @@ public class UserController {
         final String login = (String) httpSession.getAttribute(SESSIONKEY);
         if (login == null) return answer.onlyStatus(new HttpStatus().getNotFound());
         final UsersData usersData = userService.getUser(login);
-        if(usersData!=null) return answer.withObject(new HttpStatus().getOk(), usersData);
+        if (usersData != null) return answer.withObject(new HttpStatus().getOk(), usersData);
         return answer.onlyStatus(new HttpStatus().getNotFound());
     }
 

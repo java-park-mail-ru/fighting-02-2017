@@ -1,9 +1,9 @@
 package sample.websocket;
 
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
-import org.json.JSONException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
@@ -23,8 +23,6 @@ public class GameWebSocketHandler extends TextWebSocketHandler {
     private static final Logger log = Logger.getLogger(UserService.class);
 
 
-    //private @NotNull UserService userService;
-
     private Answer answer = new Answer();
 
     private @NotNull SocketService socketService;
@@ -37,7 +35,6 @@ public class GameWebSocketHandler extends TextWebSocketHandler {
 
     public GameWebSocketHandler(@NotNull SocketService socketService, @NotNull UserService userService) {
         this.socketService = socketService;
-        //    this.userService=userService;
     }
 
     @Override
@@ -61,7 +58,8 @@ public class GameWebSocketHandler extends TextWebSocketHandler {
             // pulse and info will be later
             switch (message.getType()) {
                 case step:
-                    final SnapClient snapClient = new SnapClient(message.getContent());
+                    final ObjectMapper objectMapper = new ObjectMapper();
+                    final SnapClient snapClient = objectMapper.readValue(message.getContent().toString(), SnapClient.class);
                     snapClient.setLogin(login);
                     socketService.transportToMechanics(snapClient);
                     break;
@@ -71,8 +69,8 @@ public class GameWebSocketHandler extends TextWebSocketHandler {
                     socketService.sendMessageToUser(login, answer.messageClient("This type is not supported"));
                     break;
             }
-        } catch (JSONException e) {
-            System.out.println("Json error");
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
             log.error("Json error");
         }
     }

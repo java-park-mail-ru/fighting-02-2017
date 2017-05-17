@@ -8,6 +8,7 @@ import org.springframework.web.socket.CloseStatus;
 import sample.controllers.UserController;
 import sample.websocket.SocketService;
 import support.Answer;
+import support.TimeOut;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -15,7 +16,6 @@ import java.util.HashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
@@ -27,7 +27,6 @@ public class GameMechanicsSingleThread {
     private SocketService socketService;
     @Autowired
     private GameService gameService;
-
     static final Logger log = Logger.getLogger(UserController.class);
     Answer answer = new Answer();
     private ExecutorService tickExecutor = Executors.newSingleThreadExecutor();
@@ -42,45 +41,34 @@ public class GameMechanicsSingleThread {
             socketService.sendMessageToUser(login, answer.messageClient("Waiting"));
             waiters.add(login);
         } else {
-            startGame(new ArrayList<String>() {{
-                add(waiters.poll());
-                add(login);
-            }});
+            final Players players = new Players(login, waiters.poll());
+            playingNow.put(id.get(), players);
+            startGame(players.getLogins());
         }
     }
 
     public void startGame(ArrayList<String> logins) {
         logins.forEach(item -> socketService.sendMessageToUser(item, answer.messageClient(id.get(), logins)));
-        playingNow.put(id.get(), new Players(logins));
         id.getAndIncrement();
     }
 
-    public void gmStemp(ArrayList<SnapClient> snaps) {
-        final SnapServer snapServer = new SnapServer(new HashMap<SnapClient, Integer>() {{
-            AtomicInteger i = new AtomicInteger(0);
-            Damage.getInstance().calculate(snaps).forEach(item -> put(snaps.get(i.getAndIncrement()), item));
-        }});
-        socketService.sendMessageToUser(snaps.get(0).getLogin(), snapServer.getResult());
-        socketService.sendMessageToUser(snaps.get(1).getLogin(), snapServer.getResult());
-        if (snaps.get(0).hp.equals(0) || (snaps.get(1).hp.equals(0))) {
-            playingNow.remove(snaps.get(0).getId());
-            endGame(snaps);
+    public void gmStemp(Players players) {
+        final SnapServer snapServer = new SnapServer(players);
+        players.getLogins().forEach(item -> socketService.sendMessageToUser(item, snapServer.getJson()));
+        socketService.sendMessageToUser(players.getSnaps().get(0).getLogin(), snapServer.getJson());
+        socketService.sendMessageToUser(players.getSnaps().get(1).getLogin(), snapServer.getJson());
+        if (players.getSnaps().get(0).hp.equals(0) || (players.getSnaps().get(1).hp.equals(0))) {
+            playingNow.remove(players.getSnaps().get(0).getId());
+            endGame(players.getSnaps());
         } else {
-            final Players players = playingNow.get(snaps.get(0).getId());
-            players.setSnap(null);
+            players.cleanSnaps();
         }
     }
 
     public void addSnap(SnapClient snap) {
         final Players players = playingNow.get(snap.getId());
-        if (players.getSnap() != null) {
-            //gmStemp(players.getSnap(), snap);
-            gmStemp(new ArrayList<SnapClient>() {{
-                add(players.getSnap());
-                add(snap);
-            }});
-        } else {
-            players.setSnap(snap);
+        if (players.setAndGetSize(snap) == 2) {
+            gmStemp(players);
         }
     }
 

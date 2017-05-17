@@ -1,6 +1,5 @@
 package sample.game;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
@@ -13,7 +12,6 @@ import java.util.ArrayList;
 /**
  * Created by andrey on 09.05.17.
  */
-@JsonIgnoreProperties({"kProb", "damage"})
 public final class Damage {
     private static final Logger log = Logger.getLogger(Damage.class);
     public Integer baseDamage;
@@ -62,11 +60,11 @@ public final class Damage {
         return (int) Math.round((1.0 - kProb) * baseDamage);
     }
 
-    public ArrayList<Integer> calculate(ArrayList<SnapClient> snap) {
+    public ArrayList<Integer> calculate(ArrayList<SnapClient> snaps) {
         final ArrayList<Integer> damage = new ArrayList<>();
         for (int i = 0, j = 1; i < 2; i++, j--) {
-            final SnapClient item = snap.get(i);
-            final SnapClient anotherItem = snap.get(j);
+            final SnapClient item = snaps.get(i);
+            final SnapClient anotherItem = snaps.get(j);
             final Double kProb = setKBlock(item.target, anotherItem.block, setKMethod(item.method));
             final Integer dam = setAndGetDamage(kProb);
             item.hp = Math.max(item.hp - dam, 0);

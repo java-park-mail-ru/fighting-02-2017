@@ -35,7 +35,7 @@ public class GameMechanicsSingleThread {
     private @NotNull HashMap<Long, Players> playingNow = new HashMap<>();
 
 
-    public void addWaiters(String login) throws IOException {
+    public void addWaiters(String login){
         if (waiters.isEmpty()) {
             System.out.println("Waiting");
             socketService.sendMessageToUser(login, answer.messageClient("Waiting"));
@@ -52,7 +52,7 @@ public class GameMechanicsSingleThread {
         id.getAndIncrement();
     }
 
-    public void gmStemp(Players players) {
+    public void gmStep(Players players) {
         final SnapServer snapServer = new SnapServer(players);
         players.getLogins().forEach(item -> socketService.sendMessageToUser(item, snapServer.getJson()));
         socketService.sendMessageToUser(players.getSnaps().get(0).getLogin(), snapServer.getJson());
@@ -68,7 +68,7 @@ public class GameMechanicsSingleThread {
     public void addSnap(SnapClient snap) {
         final Players players = playingNow.get(snap.getId());
         if (players.setAndGetSize(snap) == 2) {
-            gmStemp(players);
+            gmStep(players);
         }
     }
 

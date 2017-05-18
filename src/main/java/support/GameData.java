@@ -5,9 +5,9 @@ package support;
  */
 public class GameData {
     public Integer baseDamage = 40;
-    public Double MH;
-    public Double MA;
-    public Double ML;
-    public Double BH;
-    public Double BB;
+    public Double MethodHead;
+    public Double MethodArm;
+    public Double MethodLeg;
+    public Double BlockHead;
+    public Double BlockBody;
 }

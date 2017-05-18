@@ -6,12 +6,14 @@ import org.json.JSONObject;
  * Created by andrey on 27.04.17.
  */
 public class Message {
-    public enum messageType {step}
+    public enum MessageType {
+        STEP
+    }
 
-    messageType type;
+    MessageType type;
     private JSONObject content;
 
-    public messageType getType() {
+    public MessageType getType() {
         return type;
     }
 
@@ -22,7 +24,7 @@ public class Message {
     public Message(String textmessage) {
         content = new JSONObject(textmessage);
         try {
-            type = messageType.valueOf(content.get("type").toString());
+            type = MessageType.valueOf(content.get("type").toString());
         } catch (IllegalArgumentException e) {
             type = null;
         }

@@ -3,6 +3,7 @@ package sample.game;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
+import sample.websocket.Message;
 import support.GameData;
 
 import java.io.IOException;
@@ -15,11 +16,11 @@ import java.util.ArrayList;
 public final class Damage {
     private static final Logger log = Logger.getLogger(Damage.class);
     public Integer baseDamage;
-    public Double MH;
-    public Double MA;
-    public Double ML;
-    public Double BH;
-    public Double BB;
+    public Double MethodHead;
+    public Double MethodArm;
+    public Double MethodLeg;
+    public Double BlockHead;
+    public Double BlockBody;
 
     private Damage() {
     }
@@ -42,16 +43,16 @@ public final class Damage {
 
     public Double setKMethod(String method) {
         Double kProb = 1.0;
-        if (method.equals("arm")) kProb *= MA;
-        if (method.equals("head")) kProb *= MH;
-        if (method.equals("leg")) kProb *= ML;
+        if (method.equals("arm")) kProb *= MethodArm;
+        if (method.equals("head")) kProb *= MethodHead;
+        if (method.equals("leg")) kProb *= MethodLeg;
         return kProb;
     }
 
     public Double setKBlock(String target, String block, Double kProb) {
         if (target.equals(block)) {
-            if (block.equals("body")) kProb *= BB;
-            else kProb *= BH;
+            if (block.equals("body")) kProb *= BlockBody;
+            else kProb *= BlockHead;
         } else kProb = kProb / 2.0;
         return kProb;
     }
@@ -62,14 +63,14 @@ public final class Damage {
 
     public ArrayList<Integer> calculate(ArrayList<SnapClient> snaps) {
         final ArrayList<Integer> damage = new ArrayList<>();
-        for (int i = 0, j = 1; i < 2; i++, j--) {
-            final SnapClient item = snaps.get(i);
-            final SnapClient anotherItem = snaps.get(j);
-            final Double kProb = setKBlock(item.target, anotherItem.block, setKMethod(item.method));
-            final Integer dam = setAndGetDamage(kProb);
-            item.hp = Math.max(item.hp - dam, 0);
-            damage.add(dam);
-        }
+        String blockOpponent=snaps.get(1).block;
+            for(SnapClient item:snaps) {
+                final Double kProb = setKBlock(item.target, blockOpponent, setKMethod(item.method));
+                final Integer dam = setAndGetDamage(kProb);
+                item.hp = Math.max(item.hp - dam, 0);
+                damage.add(dam);
+                blockOpponent = snaps.get(0).block;
+            }
         return damage;
     }
 }

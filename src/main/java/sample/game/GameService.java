@@ -23,12 +23,7 @@ public class GameService {
     private @NotNull ConcurrentLinkedQueue<String> waiters = new ConcurrentLinkedQueue<>();
 
     public void addWaiters(String login) {
-        tickExecutor.submit(() -> {
-            try {
-                gameMechanicsSingleThread.addWaiters(login);
-            } catch (IOException ignore) {
-            }
-        });
+        tickExecutor.submit(() -> gameMechanicsSingleThread.addWaiters(login));
     }
 
     public void addSnap(SnapClient snap) {

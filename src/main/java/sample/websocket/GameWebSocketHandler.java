@@ -57,7 +57,7 @@ public class GameWebSocketHandler extends TextWebSocketHandler {
             final Message message = new Message(textMessage.getPayload());
             // pulse and info will be later
             switch (message.getType()) {
-                case step:
+                case STEP:
                     final ObjectMapper objectMapper = new ObjectMapper();
                     final SnapClient snapClient = objectMapper.readValue(message.getContent().toString(), SnapClient.class);
                     snapClient.setLogin(login);

@@ -1,7 +1,10 @@
 package sample.game;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -13,8 +16,7 @@ public class SnapServer {
     private JSONObject result;
     private String first;
     private String second;
-    private Map<SnapClient, Integer> map = new HashMap<>();
-
+    private ArrayList<SnapClient> snapsClient=new ArrayList<>();
     public String getFirst() {
         return first;
     }
@@ -25,26 +27,18 @@ public class SnapServer {
 
 
     SnapServer(Players players) {
-        AtomicInteger i = new AtomicInteger(0);
-        Damage.getInstance().calculate(players.getSnaps()).forEach(item -> map.put(players.getSnaps().get(i.getAndIncrement()), item));
+        snapsClient=Damage.getInstance().getSnapsWithDamage(players.getSnaps());
     }
-
-    public JSONObject getJson() {
+    public JSONObject getJson(){
+        final ObjectMapper objectMapper=new ObjectMapper();
         final JSONObject resultJson = new JSONObject();
-        AtomicInteger i = new AtomicInteger(0);
-        map.forEach((snapClient, takenDamage) -> {
-            final JSONObject json = new JSONObject();
-            json.put("login", snapClient.getLogin());
-            json.put("hp", snapClient.hp);
-            json.put("takenDamage", takenDamage);
-            json.put("block", snapClient.block);
-            json.put("method", snapClient.method);
-            json.put("target", snapClient.target);
-            if (i.getAndIncrement() == 0) {
-                resultJson.put("id", snapClient.getId());
-                resultJson.put("first", json);
-            } else resultJson.put("second", json);
-        });
+        try {
+            resultJson.put("first",new JSONObject(objectMapper.writeValueAsString(snapsClient.get(0))));
+            resultJson.put("second",new JSONObject(objectMapper.writeValueAsString(snapsClient.get(1))));
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+            System.out.println("json error snapclient");
+        }
         return resultJson;
     }
 }

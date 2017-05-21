@@ -13,9 +13,7 @@ import support.TimeOut;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
@@ -27,12 +25,15 @@ public class GameMechanicsSingleThread {
     private SocketService socketService;
     @Autowired
     private GameService gameService;
+    volatile boolean flagexecutor=false;
+    ScheduledFuture<?> future;
+    ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
     static final Logger log = Logger.getLogger(UserController.class);
     Answer answer = new Answer();
-    private ExecutorService tickExecutor = Executors.newSingleThreadExecutor();
+  //  private ExecutorService tickExecutor = Executors.newSingleThreadExecutor();
     private AtomicLong id = new AtomicLong(1);
-    private @NotNull ConcurrentLinkedQueue<String> waiters = new ConcurrentLinkedQueue<>();
-    private @NotNull HashMap<Long, Players> playingNow = new HashMap<>();
+    private volatile @NotNull ConcurrentLinkedQueue<String> waiters = new ConcurrentLinkedQueue<>();
+    private volatile @NotNull HashMap<Long, Players> playingNow = new HashMap<>();
 
 
     public void addWaiters(String login){
@@ -48,6 +49,15 @@ public class GameMechanicsSingleThread {
     }
 
     public void startGame(ArrayList<String> logins) {
+        if (flagexecutor==false){
+            flagexecutor=true;
+            future=executor.scheduleAtFixedRate(()->{
+                playingNow.forEach((id,players)->{
+                    socketService.sendMessageToUser(players.getLogins().get(0),answer.messageClient("pulse"));
+                    socketService.sendMessageToUser(players.getLogins().get(1),answer.messageClient("pulse"));
+                });
+            }, 0, 5, TimeUnit.SECONDS);
+        }
         logins.forEach(item -> socketService.sendMessageToUser(item, answer.messageClient(id.get(), logins)));
         id.getAndIncrement();
     }

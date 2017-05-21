@@ -61,16 +61,17 @@ public final class Damage {
         return (int) Math.round((1.0 - kProb) * baseDamage);
     }
 
-    public ArrayList<Integer> calculate(ArrayList<SnapClient> snaps) {
+    public ArrayList<SnapClient> getSnapsWithDamage(ArrayList<SnapClient> snaps) {
         final ArrayList<Integer> damage = new ArrayList<>();
-        String blockOpponent=snaps.get(1).block;
-            for(SnapClient item:snaps) {
-                final Double kProb = setKBlock(item.target, blockOpponent, setKMethod(item.method));
-                final Integer dam = setAndGetDamage(kProb);
-                item.hp = Math.max(item.hp - dam, 0);
-                damage.add(dam);
-                blockOpponent = snaps.get(0).block;
-            }
-        return damage;
+        calculate(snaps.get(0),snaps.get(1).block);
+        calculate(snaps.get(1),snaps.get(0).block);
+        return snaps;
     }
+    private void calculate(SnapClient snap, String block){
+        final Double kProb = setKBlock(snap.target, block, setKMethod(snap.method));
+        final Integer damage = setAndGetDamage(kProb);
+        snap.hp = Math.max(snap.hp - damage, 0);
+        snap.setTakenDamage(damage);
+    }
+
 }

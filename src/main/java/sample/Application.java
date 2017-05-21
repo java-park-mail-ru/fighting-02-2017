@@ -5,6 +5,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.web.socket.WebSocketHandler;
 import org.springframework.web.socket.handler.PerConnectionWebSocketHandler;
 import sample.websocket.GameWebSocketHandler;
@@ -14,6 +15,7 @@ import sample.websocket.GameWebSocketHandler;
  */
 
 @SpringBootApplication
+@EnableTransactionManagement
 @ComponentScan(basePackages = {"services", "sample"})
 public class Application {
     private static final Logger log = Logger.getLogger(Application.class);

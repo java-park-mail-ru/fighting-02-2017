@@ -11,12 +11,14 @@ import org.json.JSONObject;
  */
 public class SnapClient {
     private Long id;
-    @JsonIgnore
-    private String login;
     String method;
     String block;
     String target;
     Integer hp;
+    @JsonProperty(access= JsonProperty.Access.READ_ONLY)
+    String login;
+    @JsonProperty(access= JsonProperty.Access.READ_ONLY)
+    Integer takenDamage;
    @JsonCreator
     public SnapClient( @JsonProperty("id") Long id,
                         @JsonProperty("method") String method,
@@ -30,6 +32,8 @@ public class SnapClient {
         this.hp=hp;
     }
 
+    public void setTakenDamage(Integer takenDamage){this.takenDamage=takenDamage;}
+
     public void setLogin(String login) {
         this.login = login;
     }
@@ -41,4 +45,14 @@ public class SnapClient {
     public Long getId() {
         return id;
     }
+
+    public String getMethod(){return method;}
+
+    public String getBlock(){return block;}
+
+    public String getTarget(){return target;}
+
+    public Integer getHp(){return hp;}
+
+    public Integer getTakenDamage(){return takenDamage;}
 }

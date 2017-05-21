@@ -4,6 +4,7 @@ package sample.websocket;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
+import org.json.JSONObject;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
@@ -54,12 +55,11 @@ public class GameWebSocketHandler extends TextWebSocketHandler {
         final String login = session.getAttributes().get(SESSIONKEY).toString();
         System.out.println("textmessage");
         try {
-            final Message message = new Message(textMessage.getPayload());
-            // pulse and info will be later
+            final ObjectMapper objectMapper = new ObjectMapper();
+            final MessageReceive message =new MessageReceive(textMessage.getPayload());
             switch (message.getType()) {
-                case STEP:
-                    final ObjectMapper objectMapper = new ObjectMapper();
-                    final SnapClient snapClient = objectMapper.readValue(message.getContent().toString(), SnapClient.class);
+                case "step":
+                    final SnapClient snapClient = objectMapper.readValue(message.getContent(), SnapClient.class);
                     snapClient.setLogin(login);
                     socketService.transportToMechanics(snapClient);
                     break;

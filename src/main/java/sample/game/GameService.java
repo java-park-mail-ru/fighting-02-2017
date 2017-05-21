@@ -19,7 +19,7 @@ public class GameService {
     private SocketService socketService;
     @Autowired
     private GameMechanicsSingleThread gameMechanicsSingleThread;
-    private ExecutorService tickExecutor = Executors.newSingleThreadExecutor();
+    private ExecutorService tickExecutor = Executors.newFixedThreadPool(4);
     private @NotNull ConcurrentLinkedQueue<String> waiters = new ConcurrentLinkedQueue<>();
 
     public void addWaiters(String login) {

@@ -25,15 +25,12 @@ public class GameMechanicsSingleThread {
     private SocketService socketService;
     @Autowired
     private GameService gameService;
-    volatile boolean flagexecutor=false;
-    ScheduledFuture<?> future;
-    ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
+    ScheduledExecutorService executorScheduled = Executors.newScheduledThreadPool(1);
     static final Logger log = Logger.getLogger(UserController.class);
     Answer answer = new Answer();
-  //  private ExecutorService tickExecutor = Executors.newSingleThreadExecutor();
     private AtomicLong id = new AtomicLong(1);
-    private volatile @NotNull ConcurrentLinkedQueue<String> waiters = new ConcurrentLinkedQueue<>();
-    private volatile @NotNull HashMap<Long, Players> playingNow = new HashMap<>();
+    private final @NotNull ConcurrentLinkedQueue<String> waiters = new ConcurrentLinkedQueue<>();
+    private final @NotNull HashMap<Long, Players> playingNow = new HashMap<>();
 
 
     public void addWaiters(String login){
@@ -46,18 +43,10 @@ public class GameMechanicsSingleThread {
             playingNow.put(id.get(), players);
             startGame(players.getLogins());
         }
+        executorScheduled.scheduleAtFixedRate(()-> socketService.sendMessageToUser(login,answer.messageClient("pulse")), 15, 15, TimeUnit.SECONDS);
     }
 
     public void startGame(ArrayList<String> logins) {
-        if (flagexecutor==false){
-            flagexecutor=true;
-            future=executor.scheduleAtFixedRate(()->{
-                playingNow.forEach((id,players)->{
-                    socketService.sendMessageToUser(players.getLogins().get(0),answer.messageClient("pulse"));
-                    socketService.sendMessageToUser(players.getLogins().get(1),answer.messageClient("pulse"));
-                });
-            }, 0, 5, TimeUnit.SECONDS);
-        }
         logins.forEach(item -> socketService.sendMessageToUser(item, answer.messageClient(id.get(), logins)));
         id.getAndIncrement();
     }

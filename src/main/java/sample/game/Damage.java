@@ -68,6 +68,10 @@ public final class Damage {
         return snaps;
     }
     private void calculate(SnapClient snap, String block){
+        if(snap.method==null) {
+            snap.setTakenDamage(0);
+            return;
+        }
         final Double kProb = setKBlock(snap.target, block, setKMethod(snap.method));
         final Integer damage = setAndGetDamage(kProb);
         snap.hp = Math.max(snap.hp - damage, 0);

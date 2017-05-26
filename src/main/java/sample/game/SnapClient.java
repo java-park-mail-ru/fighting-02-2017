@@ -10,6 +10,7 @@ import org.json.JSONObject;
  * Created by andrey on 24.04.17.
  */
 public class SnapClient {
+    @JsonProperty(access= JsonProperty.Access.WRITE_ONLY)
     private Long id;
     String method;
     String block;
@@ -31,7 +32,6 @@ public class SnapClient {
         this.target=target;
         this.hp=hp;
     }
-
     public void setTakenDamage(Integer takenDamage){this.takenDamage=takenDamage;}
 
     public void setLogin(String login) {

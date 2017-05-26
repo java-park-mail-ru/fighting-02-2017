@@ -33,6 +33,7 @@ public class SnapServer {
         final ObjectMapper objectMapper=new ObjectMapper();
         final JSONObject resultJson = new JSONObject();
         try {
+            resultJson.put("id",snapsClient.get(0).getId());
             resultJson.put("first",new JSONObject(objectMapper.writeValueAsString(snapsClient.get(0))));
             resultJson.put("second",new JSONObject(objectMapper.writeValueAsString(snapsClient.get(1))));
         } catch (JsonProcessingException e) {

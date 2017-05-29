@@ -13,7 +13,6 @@ import java.util.concurrent.atomic.AtomicInteger;
  * Created by andrey on 25.04.17.
  */
 public class SnapServer {
-    private JSONObject result;
     private String first;
     private String second;
     private ArrayList<SnapClient> snapsClient=new ArrayList<>();

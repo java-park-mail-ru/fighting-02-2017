@@ -2,6 +2,7 @@ package sample.game;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.log4j.Logger;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
@@ -19,6 +20,7 @@ public class SnapServer {
     public String getFirst() {
         return first;
     }
+    private static final Logger log = Logger.getLogger(SnapServer.class);
 
     public String getSecond() {
         return second;
@@ -36,8 +38,7 @@ public class SnapServer {
             resultJson.put("first",new JSONObject(objectMapper.writeValueAsString(snapsClient.get(0))));
             resultJson.put("second",new JSONObject(objectMapper.writeValueAsString(snapsClient.get(1))));
         } catch (JsonProcessingException e) {
-            e.printStackTrace();
-            System.out.println("json error snapclient");
+            log.error("Json error",e);
         }
         return resultJson;
     }

@@ -10,7 +10,7 @@ import org.json.JSONObject;
 public class MessageReceive extends Message {
     @JsonCreator
     public MessageReceive(String message){
-        JSONObject json=new JSONObject(message);
+        final JSONObject json=new JSONObject(message);
         type=json.get("type").toString();
         json.remove("type");
         content=json.toString();

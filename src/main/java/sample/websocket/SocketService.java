@@ -63,19 +63,16 @@ public class SocketService {
         final WebSocketSession webSocketSession = sessions.get(login);
         if (webSocketSession == null) {
 
-            System.out.println("no game websocket for user " + login);
             log.error("no game websocket for user " + login);
             cutDownConnection(login, CloseStatus.SESSION_NOT_RELIABLE);
         }
         if (!webSocketSession.isOpen()) {
-            System.out.println("session is closed or not exsists");
             log.error("session is closed or not exsists");
             cutDownConnection(login, CloseStatus.SESSION_NOT_RELIABLE);
         }
         try {
             webSocketSession.sendMessage(new TextMessage(json.toString()));
         } catch (JsonProcessingException | WebSocketException e) {
-            System.out.println("Unnable to send message");
             log.error("Unnable to send message", e);
             cutDownConnection(login, CloseStatus.SESSION_NOT_RELIABLE);
 

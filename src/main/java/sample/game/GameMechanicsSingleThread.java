@@ -35,7 +35,6 @@ public class GameMechanicsSingleThread {
 
     public void addWaiters(String login){
         if (waiters.isEmpty()) {
-            System.out.println("Waiting");
             socketService.sendMessageToUser(login, answer.messageClient("Waiting"));
             waiters.add(login);
         } else {

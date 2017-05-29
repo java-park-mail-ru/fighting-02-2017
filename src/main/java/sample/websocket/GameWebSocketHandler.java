@@ -40,10 +40,8 @@ public class GameWebSocketHandler extends TextWebSocketHandler {
 
     @Override
     public void afterConnectionEstablished(WebSocketSession webSocketSession) {
-        System.out.println("Connect");
         final String login = (String) webSocketSession.getAttributes().get(SESSIONKEY);
         if ((login == null)) {
-            System.out.println("Only authenticated users allowed to play a game");
             log.error("Only authenticated users allowed to play a game");
             socketService.sendMessageToUser(login, answer.messageClient("Only authenticated users allowed to play a game"));
         }
@@ -53,7 +51,6 @@ public class GameWebSocketHandler extends TextWebSocketHandler {
     @Override
     protected void handleTextMessage(WebSocketSession session, TextMessage textMessage) {
         final String login = session.getAttributes().get(SESSIONKEY).toString();
-        System.out.println("textmessage");
         try {
             final ObjectMapper objectMapper = new ObjectMapper();
             final MessageReceive message =new MessageReceive(textMessage.getPayload());
@@ -64,14 +61,12 @@ public class GameWebSocketHandler extends TextWebSocketHandler {
                     socketService.transportToMechanics(snapClient);
                     break;
                 default:
-                    System.out.println("This type is not supported");
                     log.error("This type is not supported");
                     socketService.sendMessageToUser(login, answer.messageClient("This type is not supported"));
                     break;
             }
         } catch (Exception e) {
-            System.out.println(e.getMessage());
-            log.error("Json error");
+            log.error("Json error",e);
         }
     }
 
@@ -81,7 +76,6 @@ public class GameWebSocketHandler extends TextWebSocketHandler {
 
         final String login = (String) webSocketSession.getAttributes().get(SESSIONKEY);
         if (login == null) {
-            System.out.println("null login");
             log.error("null login");
         }
         socketService.removeUser(login);
@@ -90,7 +84,6 @@ public class GameWebSocketHandler extends TextWebSocketHandler {
 
     @Override
     public void handleTransportError(WebSocketSession webSocketSession, Throwable throwable) {
-        System.out.println("Transport Problem!!!!!");
         log.error("Transport Problem!!!!!");
     }
 

@@ -34,8 +34,7 @@ public final class Damage {
                 instance = new ObjectMapper().readValue(inJson, Damage.class);
 
             } catch (IOException e) {
-                System.out.println(e.getMessage());
-                log.error("wrong json in resource file");
+                log.error("wrong json in resource file",e);
             }
         }
         return instance;

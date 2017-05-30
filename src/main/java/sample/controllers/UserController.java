@@ -21,7 +21,6 @@ public class UserController {
     static final Logger log = Logger.getLogger(UserController.class);
     private final UserService userService;
     private static final String SESSIONKEY = "user";
-    private final Answer answer = new Answer();
     private static final String URL = "*";
 
     public UserController(UserService userService) {
@@ -47,9 +46,9 @@ public class UserController {
         final UsersData usersData = userService.login(body);
         if (usersData != null) {
             httpSession.setAttribute(SESSIONKEY, body.getLogin());
-            return answer.withObject(new HttpStatus().getOk(), usersData);
+            return Answer.withObject(new HttpStatus().getOk(), usersData);
         }
-        return answer.onlyStatus(new HttpStatus().getNotFound());
+        return Answer.onlyStatus(new HttpStatus().getNotFound());
     }
 
     @CrossOrigin(origins = URL, maxAge = 3600)
@@ -59,19 +58,19 @@ public class UserController {
         final UsersData usersData = userService.register(body);
         if (usersData != null) {
             httpSession.setAttribute(SESSIONKEY, body.getLogin());
-            return answer.withObject(new HttpStatus().getOk(), usersData);
+            return Answer.withObject(new HttpStatus().getOk(), usersData);
         }
-        return answer.onlyStatus(new HttpStatus().getForbidden());
+        return Answer.onlyStatus(new HttpStatus().getForbidden());
     }
 
     @CrossOrigin(origins = URL, maxAge = 3600)
     @RequestMapping(path = URIRequest.get, method = RequestMethod.GET, produces = "application/json")
     public String getUser(HttpSession httpSession) {
         final String login = (String) httpSession.getAttribute(SESSIONKEY);
-        if (login == null) return answer.onlyStatus(new HttpStatus().getNotFound());
+        if (login == null) return Answer.onlyStatus(new HttpStatus().getNotFound());
         final UsersData usersData = userService.getUser(login);
-        if (usersData != null) return answer.withObject(new HttpStatus().getOk(), usersData);
-        return answer.onlyStatus(new HttpStatus().getNotFound());
+        if (usersData != null) return Answer.withObject(new HttpStatus().getOk(), usersData);
+        return Answer.onlyStatus(new HttpStatus().getNotFound());
     }
 
     @CrossOrigin(origins = URL, maxAge = 3600)
@@ -85,10 +84,10 @@ public class UserController {
                 httpSession.removeAttribute(SESSIONKEY);
                 httpSession.setAttribute(SESSIONKEY, body.getLogin());
             }
-            return answer.onlyStatus(status);
+            return Answer.onlyStatus(status);
         }
         log.error("Unauthorized");
-        return answer.onlyStatus(new HttpStatus().getUnauthorized());
+        return Answer.onlyStatus(new HttpStatus().getUnauthorized());
 
     }
 
@@ -100,11 +99,11 @@ public class UserController {
                                  HttpSession httpSession) {
         if (httpSession.getAttribute(SESSIONKEY) != null) {
             final UsersData usersData = userService.updateInfo(body);
-            if (usersData == null) return answer.onlyStatus(new HttpStatus().getBadRequest());
-            return answer.withObject(new HttpStatus().getOk(), usersData);
+            if (usersData == null) return Answer.onlyStatus(new HttpStatus().getBadRequest());
+            return Answer.withObject(new HttpStatus().getOk(), usersData);
         }
         log.error("Unauthorized");
-        return answer.onlyStatus(new HttpStatus().getUnauthorized());
+        return Answer.onlyStatus(new HttpStatus().getUnauthorized());
     }
 
     @CrossOrigin(origins = URL, maxAge = 3600)
@@ -113,10 +112,10 @@ public class UserController {
                                  HttpSession httpSession) {
         if (httpSession.getAttribute(SESSIONKEY) != null) {
             final String status = userService.changePass(body);
-            return answer.onlyStatus(status);
+            return Answer.onlyStatus(status);
         }
         log.error("Unauthorized");
-        return answer.onlyStatus(new HttpStatus().getUnauthorized());
+        return Answer.onlyStatus(new HttpStatus().getUnauthorized());
 
     }
 
@@ -125,22 +124,22 @@ public class UserController {
     public String logoutUser(HttpSession httpSession) {
         if (httpSession.getAttribute(SESSIONKEY) != null) {
             httpSession.removeAttribute(SESSIONKEY);
-            return answer.onlyStatus(new HttpStatus().getOk());
+            return Answer.onlyStatus(new HttpStatus().getOk());
         }
 
         log.error("Bad Request");
-        return answer.onlyStatus(new HttpStatus().getBadRequest());
+        return Answer.onlyStatus(new HttpStatus().getBadRequest());
     }
 
     @CrossOrigin(origins = URL, maxAge = 3600)
     @RequestMapping(path = URIRequest.leaders, method = RequestMethod.GET, produces = "application/json")
     public String getLeaders() {
         try {
-            return answer.forLeaders(new HttpStatus().getOk(), userService.getLeaders());
+            return Answer.forLeaders(new HttpStatus().getOk(), userService.getLeaders());
         } catch (JSONException e) {
 
             log.error("Bad Request");
-            return answer.onlyStatus(new HttpStatus().getBadRequest());
+            return Answer.onlyStatus(new HttpStatus().getBadRequest());
         }
     }
 }

@@ -23,9 +23,6 @@ public class GameWebSocketHandler extends TextWebSocketHandler {
     private static final String SESSIONKEY = "user";
     private static final Logger log = Logger.getLogger(UserService.class);
 
-
-    private Answer answer = new Answer();
-
     private @NotNull SocketService socketService;
 
     @ExceptionHandler(Exception.class)
@@ -43,7 +40,7 @@ public class GameWebSocketHandler extends TextWebSocketHandler {
         final String login = (String) webSocketSession.getAttributes().get(SESSIONKEY);
         if ((login == null)) {
             log.error("Only authenticated users allowed to play a game");
-            socketService.sendMessageToUser(login, answer.messageClient("Only authenticated users allowed to play a game"));
+        //    socketService.sendMessageToUser(login, Answer.messageClient("Only authenticated users allowed to play a game"));
         }
         socketService.registerUser(login, webSocketSession);
     }
@@ -62,7 +59,7 @@ public class GameWebSocketHandler extends TextWebSocketHandler {
                     break;
                 default:
                     log.error("This type is not supported");
-                    socketService.sendMessageToUser(login, answer.messageClient("This type is not supported"));
+                    socketService.sendMessageToUser(login, Answer.messageClient("This type is not supported"));
                     break;
             }
         } catch (Exception e) {

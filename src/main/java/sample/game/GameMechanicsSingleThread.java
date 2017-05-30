@@ -27,7 +27,6 @@ public class GameMechanicsSingleThread {
     private GameService gameService;
     ScheduledExecutorService executorScheduled = Executors.newScheduledThreadPool(1);
     static final Logger log = Logger.getLogger(UserController.class);
-    Answer answer = new Answer();
     private AtomicLong id = new AtomicLong(1);
     private final @NotNull ConcurrentLinkedQueue<String> waiters = new ConcurrentLinkedQueue<>();
     private final @NotNull HashMap<Long, Players> playingNow = new HashMap<>();
@@ -35,18 +34,18 @@ public class GameMechanicsSingleThread {
 
     public void addWaiters(String login){
         if (waiters.isEmpty()) {
-            socketService.sendMessageToUser(login, answer.messageClient("Waiting"));
+            socketService.sendMessageToUser(login, Answer.messageClient("Waiting"));
             waiters.add(login);
         } else {
             final Players players = new Players(login, waiters.poll());
             playingNow.put(id.get(), players);
             startGame(players.getLogins());
         }
-        executorScheduled.scheduleAtFixedRate(()-> socketService.sendMessageToUser(login,answer.messageClient("pulse")), 15, 15, TimeUnit.SECONDS);
+        executorScheduled.scheduleAtFixedRate(()-> socketService.sendMessageToUser(login,Answer.messageClient("pulse")), 15, 15, TimeUnit.SECONDS);
     }
 
     public void startGame(ArrayList<String> logins) {
-        logins.forEach(item -> socketService.sendMessageToUser(item, answer.messageClient(id.get(), logins)));
+        logins.forEach(item -> socketService.sendMessageToUser(item, Answer.messageClient(id.get(), logins)));
         id.getAndIncrement();
     }
 
@@ -71,9 +70,9 @@ public class GameMechanicsSingleThread {
     public void endGame(ArrayList<SnapClient> snaps) {
         snaps.forEach(item -> {
             if (item.hp <= 0)
-                socketService.sendMessageToUser(item.getLogin(), answer.messageClient("Game over. You lose."));
+                socketService.sendMessageToUser(item.getLogin(), Answer.messageClient("Game over. You lose."));
             else
-                socketService.sendMessageToUser(item.getLogin(), answer.messageClient("Game over. Congratulation! You win."));
+                socketService.sendMessageToUser(item.getLogin(), Answer.messageClient("Game over. Congratulation! You win."));
             socketService.cutDownConnection(item.getLogin(), CloseStatus.NORMAL);
         });
     }

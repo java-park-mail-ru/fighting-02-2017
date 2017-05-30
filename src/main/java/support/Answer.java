@@ -9,34 +9,35 @@ import java.util.ArrayList;
 /**
  * Created by andrey on 06.04.17.
  */
-public class Answer {
-    public String withObject(String status, Mutual user) {
+public final class Answer {
+    private Answer(){}
+    public static String withObject(String status, Mutual user) {
         final JSONObject answer = new JSONObject();
         answer.put("status", status);
         answer.put("user", user.getJson());
         return answer.toString();
     }
 
-    public String onlyStatus(String status) {
+    public static String onlyStatus(String status) {
         final JSONObject answer = new JSONObject();
         answer.put("status", status);
         return answer.toString();
     }
 
-    public String forLeaders(String status, JSONArray leaders) {
+    public static String forLeaders(String status, JSONArray leaders) {
         final JSONObject answer = new JSONObject();
         answer.put("leaders", leaders);
         answer.put("status", status);
         return answer.toString();
     }
 
-    public JSONObject messageClient(String answer) {
+    public static JSONObject messageClient(String answer) {
         final JSONObject result = new JSONObject();
         result.put("message", answer);
         return result;
     }
 
-    public JSONObject messageClient(Long id, ArrayList<String> logins) {
+    public static JSONObject messageClient(Long id, ArrayList<String> logins) {
         final JSONObject result = new JSONObject();
         result.put("key", id);
         result.put("first", logins.get(0));
@@ -44,7 +45,7 @@ public class Answer {
         return result;
     }
 
-    public JSONObject messageClient(Long id, String first, String second) {
+    public static JSONObject messageClient(Long id, String first, String second) {
         final JSONObject result = new JSONObject();
         result.put("key", id);
         result.put("first", first);

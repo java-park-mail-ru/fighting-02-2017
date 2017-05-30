@@ -28,11 +28,10 @@ public class SocketService {
     private Map<String, WebSocketSession> sessions = new ConcurrentHashMap<>();
     @Autowired
     private GameService gameService;
-    Answer answer = new Answer();
 
     public void registerUser(@NotNull String login, @NotNull WebSocketSession webSocketSession) {
         sessions.put(login, webSocketSession);
-        sendMessageToUser(login, answer.messageClient("Connect"));
+        sendMessageToUser(login, Answer.messageClient("Connect"));
         gameService.addWaiters(login);
     }
 
@@ -45,7 +44,7 @@ public class SocketService {
     }
 
     public void removeUser(@NotNull String login) {
-        sendMessageToUser(login, answer.messageClient("Disconnect"));
+        sendMessageToUser(login, Answer.messageClient("Disconnect"));
         sessions.remove(login);
     }
 

@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 import services.mappers.UserMapper;
 import services.mappers.UsersDataMapper;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -112,11 +113,22 @@ public class UserService {
     }
 
     public void updateRating(String winner, String looser){
+        final Integer ratingW = jdbcTemplate.queryForObject("Select rating from usersData where login=?",
+                new Object[]{winner}, Integer.class);
+        final Integer ratingL = jdbcTemplate.queryForObject("Select rating from usersData where login=?",
+                new Object[]{looser}, Integer.class);
+        final Double Ew=1/(1+10*(Math.pow(10,((ratingL-ratingW)/400))));      //мат ожидание
+        final Double El=1/(1+10*(Math.pow(10,((ratingW-ratingL)/400))));      //мат ожидание
+        final Double newRatingW=ratingW+20*(1-Ew);
+        final Double newRatingL=ratingW+20*(0-El);
         jdbcTemplate.update(
-                "UPDATE usersData SET rating = rating + ? WHERE login = ?", 1,winner);
+                "UPDATE usersData SET rating = rating + ? WHERE login = ?", newRatingW,winner);
         jdbcTemplate.update(
-                "UPDATE usersData SET rating = rating + ? WHERE login = ?", -1,looser);
-
+                "UPDATE usersData SET rating = rating + ? WHERE login = ?", newRatingL,looser);
+      //  final ArrayList result=new ArrayList();
+        /*result.add(newRatingW);
+        result.add(newRatingL);
+        return result;*/
     }
     public @Nullable UsersData updateInfo(UsersData usersData) {
         try {

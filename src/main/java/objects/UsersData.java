@@ -105,6 +105,7 @@ public class UsersData implements Mutual {
         this.gameCountWin = gameCountWin;
     }
 
+    @Override
     public JSONObject getJson() {
         final JSONObject jsonObject = new JSONObject();
         jsonObject.put("login", login);

@@ -64,6 +64,10 @@ public  class Damage {
             return;
         }
         final Double kProb = setKBlock(snap.target, block, setKMethod(snap.method));
+        if (kProb<Math.random()){
+            snap.setTakenDamage(0);
+            return;
+        }
         final Integer damage = setAndGetDamage(kProb);
         snap.hp = Math.max(snap.hp - damage, 0);
         snap.setTakenDamage(damage);

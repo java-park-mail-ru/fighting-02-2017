@@ -39,7 +39,7 @@ public class UserService {
         }
         try {
             registerUser(user);
-            return new UsersData(user.getLogin(), 0, 0, 0, 0, 0, 0, 0);
+            return new UsersData(user.getLogin(), 1200, 0, 0, 0, 0, 0, 0);
         } catch (DataAccessException e) {
             return null;
         }
@@ -119,16 +119,12 @@ public class UserService {
                 new Object[]{looser}, Integer.class);
         final Double Ew=1/(1+(Math.pow(10,((ratingL-ratingW)/400))));      //мат ожидание
         final Double El=1/(1+(Math.pow(10,((ratingW-ratingL)/400))));      //мат ожидание
-        final Double newRatingW=ratingW+20*(1-Ew);
-        final Double newRatingL=ratingW+20*(0-El);
+        final Double newRatingW=ratingW+5*(1-Ew);
+        final Double newRatingL=ratingW+5*(0-El);
         jdbcTemplate.update(
                 "UPDATE usersData SET (rating,game_count,game_count_win) = (rating + ?,game_count+1,game_count_win+1) WHERE login = ?", newRatingW,winner);
         jdbcTemplate.update(
                 "UPDATE usersData SET (rating,game_count,game_count_win) = (rating + ?,game_count+1,game_count_win) WHERE login = ?", newRatingL,looser);
-      //  final ArrayList result=new ArrayList();
-        /*result.add(newRatingW);
-        result.add(newRatingL);
-        return result;*/
     }
     public @Nullable UsersData updateInfo(UsersData usersData) {
         try {

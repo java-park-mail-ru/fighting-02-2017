@@ -90,9 +90,11 @@ public class GameMechanicsSingleThread {
         });
         if(first.hp>0){
             userService.updateRating(first.getLogin(),second.getLogin());
+            return;
         }
         if(second.hp>0){
             userService.updateRating(first.getLogin(),second.getLogin());
+            return;
         }
     }
 }

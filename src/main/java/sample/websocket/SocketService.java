@@ -15,7 +15,9 @@ import sample.game.GameService;
 import sample.game.SnapClient;
 import support.Answer;
 
+import java.awt.image.AreaAveragingScaleFilter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -26,6 +28,8 @@ import java.util.concurrent.ConcurrentHashMap;
 public class SocketService {
     static final Logger log = Logger.getLogger(UserController.class);
     private Map<String, WebSocketSession> sessions = new ConcurrentHashMap<>();
+    private Map<Long, ArrayList<String>> ready = new ConcurrentHashMap<>();
+
     @Autowired
     private GameService gameService;
 
@@ -83,6 +87,16 @@ public class SocketService {
             cutDownConnection(login, CloseStatus.SESSION_NOT_RELIABLE);
 
         } catch (Exception ignore) {
+        }
+    }
+
+    public void prepareGaming(Long id, String login){
+        final ArrayList<String> arrayList = ready.get(id);
+        arrayList.add(login);
+        if(arrayList.size()==2){
+            arrayList.forEach(item->{
+                sendMessageToUser(item,Answer.messageClient("go"));
+            });
         }
     }
 }

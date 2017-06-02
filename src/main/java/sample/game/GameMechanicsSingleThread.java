@@ -99,7 +99,7 @@ public class GameMechanicsSingleThread {
 
 
     //в отдельном потоке
-    public void checkConnect(){
+    /*public void checkConnect(){
         while (true){
             playingNow.forEach((key,value)-> {
                 if (!(socketService.isConnected(value.getFLogin()))) {
@@ -119,7 +119,7 @@ public class GameMechanicsSingleThread {
                 }
             });
         }
-    }
+    }*/
 }
 
 

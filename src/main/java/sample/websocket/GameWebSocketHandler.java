@@ -14,6 +14,9 @@ import sample.game.SnapClient;
 import services.UserService;
 import support.Answer;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 /**
  * Created by andrey on 16.04.17.
  */
@@ -23,12 +26,8 @@ public class GameWebSocketHandler extends TextWebSocketHandler {
     private static final String SESSIONKEY = "user";
     private static final Logger log = Logger.getLogger(UserService.class);
     private @NotNull SocketService socketService;
+    private ExecutorService executorService= Executors.newSingleThreadExecutor();
 
-    @ExceptionHandler(Exception.class)
-    public void handleException(WebSocketSession webSocketSession, Exception e) {
-        log.error(e.getMessage());
-        afterConnectionClosed(webSocketSession, CloseStatus.SERVER_ERROR);
-    }
 
     public GameWebSocketHandler(@NotNull SocketService socketService, @NotNull UserService userService) {
         this.socketService = socketService;
@@ -55,6 +54,10 @@ public class GameWebSocketHandler extends TextWebSocketHandler {
                     snapClient.setLogin(login);
                     socketService.transportToMechanics(snapClient);
                     break;
+                case "ready":
+                    final JSONObject json=new JSONObject(textMessage.getPayload());
+                    final Long id = Long.parseLong(json.get("id").toString());
+                    executorService.submit(()->socketService.prepareGaming(id,login));
                 default:
                     log.error("This type is not supported");
                     socketService.sendMessageToUser(login, Answer.messageClient("This type is not supported"));

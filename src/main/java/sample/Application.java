@@ -41,7 +41,7 @@ public class Application {
     @Bean
     public WebSocketHandler gameWebSocketHandler() {
         damage.resourseUp();
-        executorService.submit(()->gameMechanicsSingleThread.checkConnect());
+        //executorService.submit(()->gameMechanicsSingleThread.checkConnect());
         return new PerConnectionWebSocketHandler(GameWebSocketHandler.class);
     }
 

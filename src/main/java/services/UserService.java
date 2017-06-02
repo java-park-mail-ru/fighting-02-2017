@@ -48,7 +48,7 @@ public class UserService {
     @Transactional
     private void registerUser(User user) {
         jdbcTemplate.update("insert into users (login,password) values (?,?);", user.getLogin(), user.getHashPassword());
-        jdbcTemplate.update("INSERT INTO usersData (login) values (?);", user.getLogin());
+        jdbcTemplate.update("INSERT INTO usersData (login,rating) values (?,?);", user.getLogin(),1200);
     }
 
     @Transactional

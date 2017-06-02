@@ -4,68 +4,51 @@ import objects.HttpStatus;
 import objects.User;
 import objects.UsersData;
 import org.apache.log4j.Logger;
+import org.jetbrains.annotations.Nullable;
 import org.json.JSONArray;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.stereotype.Repository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import services.mappers.UserMapper;
+import services.mappers.UsersDataMapper;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Created by andrey on 21.02.2017.
  */
 @Service
+@Repository
 public class UserService {
-    private static final Logger log = Logger.getLogger(UserService.class.getName());
-    @Autowired
+
+    private static final Logger log = Logger.getLogger(UserService.class);
     private JdbcTemplate jdbcTemplate;
 
-    public interface Callback {
-        void onSuccess(String status);
-
-        void onError(String status);
+    public UserService(javax.sql.DataSource dataSource) {
+        this.jdbcTemplate = new JdbcTemplate(dataSource);
     }
 
-    public interface CallbackWithUser<T> {
-        void onSuccess(String status, T objUser);
-
-        void onError(String status);
-    }
-
-    public UserService(JdbcTemplate jdbcTemplate) {
-        this.jdbcTemplate = jdbcTemplate;
-    }
-
-    public void register(User user, Callback callback) {
-        if (user.getPassword().isEmpty() || user.getLogin().isEmpty()) {
-            callback.onError(new HttpStatus().getForbidden());
-        } else if (user.getPassword().length() < 8) {
-            log.error("Forbidden");
-            callback.onError(new HttpStatus().getForbidden());
-        } else if (user.getLogin().matches("[а-яА-ЯёЁ]+")) {
-            log.error("Forbidden");
-            callback.onError(new HttpStatus().getForbidden());
-        } else if (user.getLogin().length() < 4) {
-            log.error("Forbidden");
-            callback.onError(new HttpStatus().getForbidden());
-        } else {
-            try {
-                registerUser(user);
-                callback.onSuccess(new HttpStatus().getOk());
-            } catch (RuntimeException e) {
-                log.error("Forbidden");
-                callback.onError(new HttpStatus().getForbidden());
-            }
+    public UsersData register(User user) {
+        if (user.getPassword().isEmpty() || user.getLogin().isEmpty()
+                || (user.getPassword().length() < 8) || (user.getLogin().matches("[а-яА-ЯёЁ]+"))
+                || (user.getLogin().length() < 4)) {
+            return null;
+        }
+        try {
+            registerUser(user);
+            return new UsersData(user.getLogin(), 1200, 0, 0, 0, 0, 0, 0);
+        } catch (DataAccessException e) {
+            return null;
         }
     }
 
     @Transactional
     private void registerUser(User user) {
         jdbcTemplate.update("insert into users (login,password) values (?,?);", user.getLogin(), user.getHashPassword());
-        jdbcTemplate.update("INSERT INTO usersData (login) values (?);", user.getLogin());
+        jdbcTemplate.update("INSERT INTO usersData (login,rating) values (?,?);", user.getLogin(),1200);
     }
 
     @Transactional
@@ -80,56 +63,74 @@ public class UserService {
         final String SQL = "SELECT * FROM users WHERE login = ?";
         final User userDB = jdbcTemplate.queryForObject(SQL,
                 new Object[]{user.getLogin()}, new UserMapper());
-        return user.comparePass.test(userDB.getPassword());
+        return userDB != null && user.comparePass.test(userDB.getPassword());
     }
 
-    public void login(User user, CallbackWithUser callbackWithUser) {
+    @Transactional
+    private UsersData getUsersData(String login) {
+        final String SQL = "SELECT * FROM usersdata WHERE login = ?";
         try {
-            if (checkINputPasAndLog(user)) callbackWithUser.onSuccess(new HttpStatus().getOk(), user);
-            else {
-                log.error("Not Found");
-                callbackWithUser.onError(new HttpStatus().getNotFound());
-            }
-        } catch (Exception e) {
-            callbackWithUser.onError(new HttpStatus().getNotFound());
-            log.error("Not Found");
+            final UsersData usersData = jdbcTemplate.queryForObject(SQL, new Object[]{login}, new UsersDataMapper());
+            return usersData;
+        } catch (DataAccessException e) {
+            return null;
         }
     }
 
-    public void getUser(String login, CallbackWithUser callbackWithUser) {
+    public @Nullable UsersData getUser(String login) {
+        final String SQL = "SELECT * FROM users WHERE login = ?";
         try {
-            final String SQL = "SELECT * FROM users WHERE login = ?";
-            final User userDB = jdbcTemplate.queryForObject(SQL,
-                    new Object[]{login}, new UserMapper());
-            callbackWithUser.onSuccess(new HttpStatus().getOk(), userDB);
+            return getUsersData(login);
+        } catch (DataAccessException e) {
+            return null;
+        }
+    }
+
+    public @Nullable UsersData login(User user) {
+        try {
+            if (checkINputPasAndLog(user)) return getUsersData(user.getLogin());
+
+            log.error("Not Found");
+            return null;
         } catch (DataAccessException e) {
             log.error("Not Found");
-            callbackWithUser.onError(new HttpStatus().getNotFound());
+            return null;
         }
     }
 
-    public void update(User newUser, CallbackWithUser callbackWithUser) {
+    public String update(User newUser) {
         try {
-            final int rowNum = updateUsers(newUser);
+            final Integer rowNum = updateUsers(newUser);
             if (rowNum == 0) {
                 log.error("Bad Request");
-                callbackWithUser.onError(new HttpStatus().getBadRequest());
-                return;
+                return new HttpStatus().getBadRequest();
             }
-            callbackWithUser.onSuccess(new HttpStatus().getOk(), newUser);
-
-        } catch (Exception e) {
+            return new HttpStatus().getOk();
+        } catch (DataAccessException e) {
             log.error("Bad Request");
-            callbackWithUser.onError(new HttpStatus().getBadRequest());
+            return new HttpStatus().getBadRequest();
         }
     }
 
-    public void updateInfo(UsersData usersData, CallbackWithUser callbackWithUser) {
+    public void updateRating(String winner, String looser){
+        final Integer ratingW = jdbcTemplate.queryForObject("Select rating from usersData where login=?",
+                new Object[]{winner}, Integer.class);
+        final Integer ratingL = jdbcTemplate.queryForObject("Select rating from usersData where login=?",
+                new Object[]{looser}, Integer.class);
+        final Double Ew=1/(1+(Math.pow(10,((ratingL-ratingW)/400))));      //мат ожидание
+        final Double El=1/(1+(Math.pow(10,((ratingW-ratingL)/400))));      //мат ожидание
+        final Double newRatingW=ratingW+5*(1-Ew);
+        final Double newRatingL=ratingW+5*(0-El);
+        jdbcTemplate.update(
+                "UPDATE usersData SET (rating,game_count,game_count_win) = (rating + ?,game_count+1,game_count_win+1) WHERE login = ?", newRatingW,winner);
+        jdbcTemplate.update(
+                "UPDATE usersData SET (rating,game_count,game_count_win) = (rating + ?,game_count+1,game_count_win) WHERE login = ?", newRatingL,looser);
+    }
+    public @Nullable UsersData updateInfo(UsersData usersData) {
         try {
-            System.out.println(usersData.getJson());
             final int rownum = jdbcTemplate.update(
-                    "UPDATE usersData SET rating = ?, game_count = ?, game_count_win = ?, " +
-                            "crystal_purple = ?, crystal_red = ?, crystal_blue = ?, crystal_green = ?" +
+                    "UPDATE usersData SET rating = rating + ?, game_count = game_count + ?, game_count_win = game_count_win + ?, " +
+                            "crystal_purple = crystal_purple + ?, crystal_red = crystal_red + ?, crystal_blue = crystal_blue + ?, crystal_green = crystal_green + ?" +
                             "WHERE login = ?",
                     usersData.getRating(),
                     usersData.getGameCount(),
@@ -142,43 +143,36 @@ public class UserService {
             );
             if (rownum == 0) {
                 log.error("Bad Request");
-                callbackWithUser.onError(new HttpStatus().getBadRequest());
-            } else {
-                callbackWithUser.onSuccess(new HttpStatus().getOk(), usersData);
+                return null;
             }
-        } catch (Exception e) {
-            log.error("Bad Request");
-            callbackWithUser.onError(new HttpStatus().getBadRequest());
+            return usersData;
+        } catch (DataAccessException e) {
+            return null;
         }
     }
 
-    public void changePass(User user, CallbackWithUser callbackWithUser) {
-
+    public String changePass(User user) {
         try {
             if (!checkINputPasAndLog(user)) {
-                callbackWithUser.onError(new HttpStatus().getNotFound());
-                return;
+                log.error("Not Found");
+                return new HttpStatus().getNotFound();
             }
-        } catch (Exception e) {
-            log.error("Not Found");
-            callbackWithUser.onError(new HttpStatus().getNotFound());
-            return;
+        } catch (DataAccessException e) {
+            return new HttpStatus().getNotFound();
         }
+
+        final String SQL = "UPDATE users SET password= ? where login=?";
         try {
-            final String SQL = "UPDATE users SET password= ? where login=?";
             final int rownum = jdbcTemplate.update(
                     SQL, user.getNewHashPassword(), user.getLogin());
-
             if (rownum == 0) {
                 log.error("Bad Request");
-                callbackWithUser.onError(new HttpStatus().getBadRequest());
-            } else {
-                callbackWithUser.onSuccess(new HttpStatus().getOk(), user);
+                return new HttpStatus().getBadRequest();
             }
-        } catch (Exception e) {
-            log.error("Bad Request");
-            callbackWithUser.onError(new HttpStatus().getBadRequest());
+        } catch (DataAccessException e) {
+            return new HttpStatus().getBadRequest();
         }
+        return new HttpStatus().getOk();
     }
 
     public JSONArray getLeaders() {

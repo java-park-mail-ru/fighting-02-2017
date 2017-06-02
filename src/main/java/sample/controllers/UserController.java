@@ -5,7 +5,6 @@ import objects.User;
 import objects.UsersData;
 import org.apache.log4j.Logger;
 import org.json.JSONException;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.web.bind.annotation.*;
 import services.UserService;
 import support.Answer;
@@ -13,7 +12,7 @@ import support.Answer;
 import javax.servlet.http.HttpSession;
 
 /**
- * Created by Denis on 21.02.2017.
+ * Created by andrey on 21.02.2017.
  */
 
 @RestController
@@ -22,183 +21,125 @@ public class UserController {
     static final Logger log = Logger.getLogger(UserController.class);
     private final UserService userService;
     private static final String SESSIONKEY = "user";
-    private static final String URL = "https://tp-front-end-js-game.herokuapp.com";
-    public UserController(JdbcTemplate jdbcTemplate) {
-        this.userService = new UserService(jdbcTemplate);
+    private static final String URL = "*";
+
+    public UserController(UserService userService) {
+
+        this.userService = userService;
+    }
+
+    public static class URIRequest {
+        public static final String LOGIN = "/login";
+        public static final String SIGNUP = "/signup";
+        public static final String GET = "/get";
+        public static final String UPDATE = "/update";
+        public static final String UPDATEINFO = "/updateinfo";
+        public static final String CHANGEPASS = "/changepass";
+        public static final String LOGOUT = "/logout";
+        public static final String LEADERS = "/leaders";
+
     }
 
     @CrossOrigin(origins = URL, maxAge = 3600)
-    @RequestMapping(path = "/login", method = RequestMethod.POST, produces = "application/json", consumes = "application/json")
+    @RequestMapping(path = URIRequest.LOGIN, method = RequestMethod.POST, produces = "application/json", consumes = "application/json")
     public String loginUser(@RequestBody User body, HttpSession httpSession) {
-        final Answer answer = new Answer();
-        userService.login(body, new UserService.CallbackWithUser<User>() {
-            @Override
-            public void onSuccess(String status, User user) {
-                answer.withObject(status, user);
-                httpSession.setAttribute(SESSIONKEY, user.getLogin());
-            }
-
-            @Override
-            public void onError(String status) {
-                answer.onlyStatus(status);
-            }
-        });
-        return answer.getResult();
-    }
-
-    @CrossOrigin(origins = URL, maxAge = 3600)
-    @RequestMapping(path = "/signup", method = RequestMethod.POST, produces = "application/json",
-            consumes = "application/json")
-    public String registerUser(@RequestBody User body) {
-
-        final Answer answer = new Answer();
-        userService.register(body, new UserService.Callback() {
-            @Override
-            public void onSuccess(String status) {
-                answer.onlyStatus(status);
-            }
-
-            @Override
-            public void onError(String status) {
-                answer.onlyStatus(status);
-            }
-        });
-        return answer.getResult();
-    }
-
-    @CrossOrigin(origins = URL, maxAge = 3600)
-    @RequestMapping(path = "/get", method = RequestMethod.GET, produces = "application/json")
-    public String getUser(HttpSession httpSession) {
-
-        final Answer answer = new Answer();
-        final String login = (String) httpSession.getAttribute(SESSIONKEY);
-        userService.getUser(login, new UserService.CallbackWithUser<User>() {
-            @Override
-            public void onSuccess(String status, User user) {
-
-                if (user != null) answer.withObject(status, user);
-                else {
-                    log.error("Unauthorized");
-                    answer.onlyStatus(new HttpStatus().getUnauthorized());
-                }
-            }
-
-            @Override
-            public void onError(String status) {
-                answer.onlyStatus(status);
-            }
-        });
-        return answer.getResult();
-    }
-
-    @CrossOrigin(origins = URL, maxAge = 3600)
-    @RequestMapping(path = "/update", method = RequestMethod.POST, produces = "application/json",
-            consumes = "application/json")
-    public String updateUser(@RequestBody User body,
-                             HttpSession httpSession) {
-
-        final Answer answer = new Answer();
-        if (httpSession.getAttribute(SESSIONKEY) != null) {
-            userService.update(body, new UserService.CallbackWithUser<User>() {
-                @Override
-                public void onSuccess(String status, User user) {
-                    httpSession.removeAttribute(SESSIONKEY);
-                    httpSession.setAttribute(SESSIONKEY, user.getLogin());
-                    answer.onlyStatus(status);
-                }
-
-                @Override
-                public void onError(String status) {
-                    answer.onlyStatus(status);
-                }
-            });
-        } else {
-            log.error("Unauthorized");
-            answer.onlyStatus(new HttpStatus().getUnauthorized());
+        final UsersData usersData = userService.login(body);
+        if (usersData != null) {
+            httpSession.setAttribute(SESSIONKEY, body.getLogin());
+            return Answer.withObject(new HttpStatus().getOk(), usersData);
         }
-        return answer.getResult();
+        return Answer.onlyStatus(new HttpStatus().getNotFound());
     }
 
     @CrossOrigin(origins = URL, maxAge = 3600)
-    @RequestMapping(path = "/updateinfo", method = RequestMethod.POST, produces = "application/json",
+    @RequestMapping(path = URIRequest.SIGNUP, method = RequestMethod.POST, produces = "application/json",
+            consumes = "application/json")
+    public String registerUser(@RequestBody User body, HttpSession httpSession) {
+        final UsersData usersData = userService.register(body);
+        if (usersData != null) {
+            httpSession.setAttribute(SESSIONKEY, body.getLogin());
+            return Answer.withObject(new HttpStatus().getOk(), usersData);
+        }
+        return Answer.onlyStatus(new HttpStatus().getForbidden());
+    }
+
+    @CrossOrigin(origins = URL, maxAge = 3600)
+    @RequestMapping(path = URIRequest.GET, method = RequestMethod.GET, produces = "application/json")
+    public String getUser(HttpSession httpSession) {
+        final String login = (String) httpSession.getAttribute(SESSIONKEY);
+        if (login == null) return Answer.onlyStatus(new HttpStatus().getNotFound());
+        final UsersData usersData = userService.getUser(login);
+        if (usersData != null) return Answer.withObject(new HttpStatus().getOk(), usersData);
+        return Answer.onlyStatus(new HttpStatus().getNotFound());
+    }
+
+    @CrossOrigin(origins = URL, maxAge = 3600)
+    @RequestMapping(path = URIRequest.UPDATE, method = RequestMethod.POST, produces = "application/json",
+            consumes = "application/json")
+    public String updateUserLogin(@RequestBody User body,
+                                  HttpSession httpSession) {
+        if (httpSession.getAttribute(SESSIONKEY) != null) {
+            final String status = userService.update(body);
+            if (status.equals(new HttpStatus().getOk())) {
+                httpSession.removeAttribute(SESSIONKEY);
+                httpSession.setAttribute(SESSIONKEY, body.getLogin());
+            }
+            return Answer.onlyStatus(status);
+        }
+        log.error("Unauthorized");
+        return Answer.onlyStatus(new HttpStatus().getUnauthorized());
+
+    }
+
+
+    @CrossOrigin(origins = URL, maxAge = 3600)
+    @RequestMapping(path = URIRequest.UPDATEINFO, method = RequestMethod.POST, produces = "application/json",
             consumes = "application/json")
     public String updateUserInfo(@RequestBody UsersData body,
                                  HttpSession httpSession) {
-        final Answer answer = new Answer();
         if (httpSession.getAttribute(SESSIONKEY) != null) {
-            userService.updateInfo(body, new UserService.CallbackWithUser<UsersData>() {
-                @Override
-                public void onSuccess(String status, UsersData objUser) {
-                    //final String login = (String) httpSession.getAttribute(SESSIONKEY);
-                    httpSession.removeAttribute(SESSIONKEY);
-                    httpSession.setAttribute(SESSIONKEY, objUser.getLogin());
-                    answer.onlyStatus(status);
-                }
-
-                @Override
-                public void onError(String status) {
-                    answer.onlyStatus(status);
-                }
-            });
-        } else {
-            log.error("Unauthorized");
-            answer.onlyStatus(new HttpStatus().getUnauthorized());
+            final UsersData usersData = userService.updateInfo(body);
+            if (usersData == null) return Answer.onlyStatus(new HttpStatus().getBadRequest());
+            return Answer.withObject(new HttpStatus().getOk(), usersData);
         }
-        return answer.getResult();
+        log.error("Unauthorized");
+        return Answer.onlyStatus(new HttpStatus().getUnauthorized());
     }
 
     @CrossOrigin(origins = URL, maxAge = 3600)
-    @RequestMapping(path = "/changepass", method = RequestMethod.POST, produces = "application/json", consumes = "application/json")
+    @RequestMapping(path = URIRequest.CHANGEPASS, method = RequestMethod.POST, produces = "application/json", consumes = "application/json")
     public String changeUserPass(@RequestBody User body,
                                  HttpSession httpSession) {
-        final Answer answer = new Answer();
         if (httpSession.getAttribute(SESSIONKEY) != null) {
-            userService.changePass(body, new UserService.CallbackWithUser<User>() {
-                @Override
-                public void onSuccess(String status, User user) {
-                    final String login = (String) httpSession.getAttribute(SESSIONKEY);
-                    httpSession.removeAttribute(SESSIONKEY);
-                    httpSession.setAttribute(SESSIONKEY, login);
-                    answer.onlyStatus(status);
-                }
-
-                @Override
-                public void onError(String status) {
-                    answer.onlyStatus(status);
-                }
-            });
-        } else {
-            log.error("Unauthorized");
-            answer.onlyStatus(new HttpStatus().getUnauthorized());
+            final String status = userService.changePass(body);
+            return Answer.onlyStatus(status);
         }
-        return answer.getResult();
+        log.error("Unauthorized");
+        return Answer.onlyStatus(new HttpStatus().getUnauthorized());
+
     }
 
     @CrossOrigin(origins = URL, maxAge = 3600)
-    @RequestMapping(path = "/logout", method = RequestMethod.GET, produces = "application/json")
+    @RequestMapping(path = URIRequest.LOGOUT, method = RequestMethod.GET, produces = "application/json")
     public String logoutUser(HttpSession httpSession) {
-
-        final Answer answer = new Answer();
         if (httpSession.getAttribute(SESSIONKEY) != null) {
             httpSession.removeAttribute(SESSIONKEY);
-            answer.onlyStatus(new HttpStatus().getOk());
-        } else {
-            log.error("Bad Request");
-            answer.onlyStatus(new HttpStatus().getBadRequest());
+            return Answer.onlyStatus(new HttpStatus().getOk());
         }
-        return answer.getResult();
+
+        log.error("Bad Request");
+        return Answer.onlyStatus(new HttpStatus().getBadRequest());
     }
 
     @CrossOrigin(origins = URL, maxAge = 3600)
-    @RequestMapping(path = "/leaders", method = RequestMethod.GET, produces = "application/json")
+    @RequestMapping(path = URIRequest.LEADERS, method = RequestMethod.GET, produces = "application/json")
     public String getLeaders() {
-        final Answer answer = new Answer();
         try {
-            answer.forLeaders(new HttpStatus().getOk(), userService.getLeaders());
+            return Answer.forLeaders(new HttpStatus().getOk(), userService.getLeaders());
         } catch (JSONException e) {
+
             log.error("Bad Request");
-            answer.onlyStatus(new HttpStatus().getBadRequest());
+            return Answer.onlyStatus(new HttpStatus().getBadRequest());
         }
-        return answer.getResult();
     }
 }

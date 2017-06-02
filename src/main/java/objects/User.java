@@ -14,19 +14,12 @@ import java.util.function.Predicate;
  * Created by Denis on 21.02.2017.
  */
 
-public class User {
+public class User implements Mutual {
     private Integer id;
     private String login;
     private String newlogin;
     private String password;
     private String newpassword;
-    private Integer rating;
-    private Integer gameCount;
-    private Integer gameCountWin;
-    private Integer crystalGreen;
-    private Integer crystalBlue;
-    private Integer crystalRed;
-    private Integer crystalPurple;
 
     public User() {
 
@@ -103,6 +96,7 @@ public class User {
         this.id = id;
     }
 
+    @Override
     public JSONObject getJson() {
         final JSONObject jsonObject = new JSONObject();
         jsonObject.put("id", id);

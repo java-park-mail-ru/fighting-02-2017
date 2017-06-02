@@ -59,7 +59,8 @@ public class GameMechanicsSingleThread {
     public void gmStep(Players players, Long id) {
       final SnapServer snapServer = new SnapServer(players,id);
         damage.SetDamage(players.getFSnap(), players.getSSnap());
-        socketService.sendMessageToUser(players.getFLogin(),players.getSLogin(), snapServer.getJson());
+        //socketService.sendMessageToUser(players.getFLogin(),players.getSLogin(), snapServer.getJson());
+        socketService.sendMessageToUser(players.getFLogin(),players.getSLogin(),Answer.getJson(snapServer));
         if (players.getFSnap().hp.equals(0) || (players.getSSnap().hp.equals(0))) {
             playingNow.remove(players.getFSnap().getId());
             endGame(players.getFSnap(),players.getSSnap());

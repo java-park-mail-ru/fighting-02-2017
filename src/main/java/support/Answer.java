@@ -1,8 +1,12 @@
 package support;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import objects.Mutual;
+import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import sample.game.SnapServer;
 
 import java.util.ArrayList;
 
@@ -11,6 +15,9 @@ import java.util.ArrayList;
  */
 public final class Answer {
     private Answer(){}
+
+    private static final Logger log = Logger.getLogger(SnapServer.class);
+
     public static String withObject(String status, Mutual user) {
         final JSONObject answer = new JSONObject();
         answer.put("status", status);
@@ -37,13 +44,6 @@ public final class Answer {
         return result;
     }
 
-    public static JSONObject messageClient(Long id, ArrayList<String> logins) {
-        final JSONObject result = new JSONObject();
-        result.put("key", id);
-        result.put("first", logins.get(0));
-        result.put("second", logins.get(1));
-        return result;
-    }
 
     public static JSONObject messageClient(String first, String second, Long id) {
         final JSONObject result = new JSONObject();
@@ -53,5 +53,14 @@ public final class Answer {
         return result;
     }
 
+    public  static JSONObject getJson(SnapServer snapServer){
+        final ObjectMapper objectMapper=new ObjectMapper();
+        try {
+            return  new JSONObject(objectMapper.writeValueAsString(snapServer));
+        } catch (JsonProcessingException e) {
+            log.error("Json error",e);
+        }
+        return new JSONObject();
+    }
 
 }

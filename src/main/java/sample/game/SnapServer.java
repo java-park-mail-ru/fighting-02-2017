@@ -19,7 +19,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * Created by andrey on 25.04.17.
  */
-@JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY )
 public class SnapServer {
     public SnapClient first;
 
@@ -27,24 +26,16 @@ public class SnapServer {
 
     public Long id;
 
-    private static final Logger log = Logger.getLogger(SnapServer.class);
 
+    public Long getId(){return id;}
+
+    public SnapClient getFirst(){return first;}
+
+    public SnapClient getSecond(){return second;}
 
     SnapServer(Players players, Long id ) {
             this.id=id;
             first = players.getFSnap();
             second = players.getSSnap();
-    }
-    public JSONObject getJson(){
-        final ObjectMapper objectMapper=new ObjectMapper();
-        final JSONObject resultJson = new JSONObject();
-        try {
-            return  resultJson.put("id",id)
-                              .put("first",new JSONObject(objectMapper.writeValueAsString(first)))
-                              .put("second",new JSONObject(objectMapper.writeValueAsString(second)));
-        } catch (JsonProcessingException e) {
-            log.error("Json error",e);
-        }
-        return new JSONObject();
     }
 }

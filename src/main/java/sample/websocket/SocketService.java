@@ -28,7 +28,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class SocketService {
     static final Logger log = Logger.getLogger(UserController.class);
     private Map<String, WebSocketSession> sessions = new ConcurrentHashMap<>();
-    private Map<Long, ArrayList<String>> ready = new ConcurrentHashMap<>();
+    private Map<Long, String> ready = new ConcurrentHashMap<>();
 
     @Autowired
     private GameService gameService;
@@ -91,12 +91,18 @@ public class SocketService {
     }
 
     public void prepareGaming(Long id, String login){
-        final ArrayList<String> arrayList = ready.get(id);
-        arrayList.add(login);
-        if(arrayList.size()==2){
-            arrayList.forEach(item->{
-                sendMessageToUser(item,Answer.messageClient("go"));
-            });
+        final String loginMap =ready.get(id);
+        if(loginMap==null) {
+            ready.put(id,login);
+            return;
         }
+        try {
+            sendMessageToUser(loginMap,Answer.messageClient("go"));
+            sendMessageToUser(login,Answer.messageClient("go"));
+            ready.remove(id);
+        }catch (Exception e){
+            System.out.println(e.getMessage());
+        }
+
     }
 }

@@ -55,15 +55,17 @@ public class GameWebSocketHandler extends TextWebSocketHandler {
                     socketService.transportToMechanics(snapClient);
                     break;
                 case "ready":
-                    final JSONObject json=new JSONObject(textMessage.getPayload());
+                    final JSONObject json=new JSONObject(message.getContent());
                     final Long id = Long.parseLong(json.get("id").toString());
                     executorService.submit(()->socketService.prepareGaming(id,login));
+                    break;
                 default:
                     log.error("This type is not supported");
                     socketService.sendMessageToUser(login, Answer.messageClient("This type is not supported"));
                     break;
             }
         } catch (Exception e) {
+            System.out.println("dqWADFSBGVN");
             log.error("Json error",e);
         }
     }

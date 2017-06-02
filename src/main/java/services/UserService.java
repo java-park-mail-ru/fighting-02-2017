@@ -117,14 +117,14 @@ public class UserService {
                 new Object[]{winner}, Integer.class);
         final Integer ratingL = jdbcTemplate.queryForObject("Select rating from usersData where login=?",
                 new Object[]{looser}, Integer.class);
-        final Double Ew=1/(1+10*(Math.pow(10,((ratingL-ratingW)/400))));      //мат ожидание
-        final Double El=1/(1+10*(Math.pow(10,((ratingW-ratingL)/400))));      //мат ожидание
+        final Double Ew=1/(1+(Math.pow(10,((ratingL-ratingW)/400))));      //мат ожидание
+        final Double El=1/(1+(Math.pow(10,((ratingW-ratingL)/400))));      //мат ожидание
         final Double newRatingW=ratingW+20*(1-Ew);
         final Double newRatingL=ratingW+20*(0-El);
         jdbcTemplate.update(
-                "UPDATE usersData SET rating = rating + ? WHERE login = ?", newRatingW,winner);
+                "UPDATE usersData SET (rating,game_count,game_count_win) = (rating + ?,game_count+1,game_count_win+1) WHERE login = ?", newRatingW,winner);
         jdbcTemplate.update(
-                "UPDATE usersData SET rating = rating + ? WHERE login = ?", newRatingL,looser);
+                "UPDATE usersData SET (rating,game_count,game_count_win) = (rating + ?,game_count+1,game_count_win) WHERE login = ?", newRatingL,looser);
       //  final ArrayList result=new ArrayList();
         /*result.add(newRatingW);
         result.add(newRatingL);

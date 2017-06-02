@@ -64,7 +64,7 @@ public  class Damage {
             return;
         }
         final Double kProb = setKBlock(snap.target, block, setKMethod(snap.method));
-        if (kProb<Math.random()){
+        if (Math.random()<kProb){
             snap.setTakenDamage(0);
             return;
         }

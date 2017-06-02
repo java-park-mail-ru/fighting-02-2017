@@ -22,7 +22,6 @@ import support.Answer;
 public class GameWebSocketHandler extends TextWebSocketHandler {
     private static final String SESSIONKEY = "user";
     private static final Logger log = Logger.getLogger(UserService.class);
-
     private @NotNull SocketService socketService;
 
     @ExceptionHandler(Exception.class)
@@ -40,7 +39,6 @@ public class GameWebSocketHandler extends TextWebSocketHandler {
         final String login = (String) webSocketSession.getAttributes().get(SESSIONKEY);
         if ((login == null)) {
             log.error("Only authenticated users allowed to play a game");
-        //    socketService.sendMessageToUser(login, Answer.messageClient("Only authenticated users allowed to play a game"));
         }
         socketService.registerUser(login, webSocketSession);
     }
@@ -77,6 +75,7 @@ public class GameWebSocketHandler extends TextWebSocketHandler {
             return;
         }
         socketService.removeUser(login);
+
     }
 
 

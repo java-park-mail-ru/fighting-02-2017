@@ -28,8 +28,8 @@ public class GameService {
 
     public void addSnap(SnapClient snap) {
         tickExecutor.submit(() -> gameMechanicsSingleThread.addSnap(snap));
-
     }
+
 }
 
 

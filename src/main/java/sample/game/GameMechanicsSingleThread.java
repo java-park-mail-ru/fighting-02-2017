@@ -59,7 +59,6 @@ public class GameMechanicsSingleThread {
     public void gmStep(Players players, Long id) {
       final SnapServer snapServer = new SnapServer(players,id);
         damage.SetDamage(players.getFSnap(), players.getSSnap());
-        //socketService.sendMessageToUser(players.getFLogin(),players.getSLogin(), snapServer.getJson());
         socketService.sendMessageToUser(players.getFLogin(),players.getSLogin(),Answer.getJson(snapServer));
         if (players.getFSnap().hp.equals(0) || (players.getSSnap().hp.equals(0))) {
             playingNow.remove(players.getFSnap().getId());
@@ -95,6 +94,30 @@ public class GameMechanicsSingleThread {
         if(second.hp>0){
             userService.updateRating(first.getLogin(),second.getLogin());
             return;
+        }
+    }
+
+
+    //в отдельном потоке
+    public void checkConnect(){
+        while (true){
+            playingNow.forEach((key,value)-> {
+                if (!(socketService.isConnected(value.getFLogin()))) {
+                    if (socketService.isConnected(value.getSLogin())) {
+                        socketService.sendMessageToUser(value.getSLogin(), Answer.messageClient("win"));
+                        socketService.cutDownConnection(value.getSLogin(), CloseStatus.NORMAL);
+                        playingNow.remove(key);
+                    }
+                } else {
+                    if (!(socketService.isConnected(value.getSLogin()))) {
+                        if (socketService.isConnected(value.getFLogin())) {
+                            socketService.sendMessageToUser(value.getFLogin(), Answer.messageClient("win"));
+                            socketService.cutDownConnection(value.getFLogin(), CloseStatus.NORMAL);
+                        }
+                         playingNow.remove(key);
+                    }
+                }
+            });
         }
     }
 }

@@ -12,7 +12,11 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.web.socket.WebSocketHandler;
 import org.springframework.web.socket.handler.PerConnectionWebSocketHandler;
 import sample.game.Damage;
+import sample.game.GameMechanicsSingleThread;
 import sample.websocket.GameWebSocketHandler;
+
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * Created by Denis on 21.02.2017.
@@ -24,7 +28,10 @@ import sample.websocket.GameWebSocketHandler;
 public class Application {
     @Autowired
     Damage damage;
+    @Autowired
+    GameMechanicsSingleThread gameMechanicsSingleThread;
 
+    ExecutorService executorService= Executors.newFixedThreadPool(1);
     private static final Logger log = Logger.getLogger(Application.class);
 
     public static void main(String[] args) {
@@ -34,6 +41,7 @@ public class Application {
     @Bean
     public WebSocketHandler gameWebSocketHandler() {
         damage.resourseUp();
+        executorService.submit(()->gameMechanicsSingleThread.checkConnect());
         return new PerConnectionWebSocketHandler(GameWebSocketHandler.class);
     }
 

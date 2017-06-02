@@ -29,19 +29,19 @@ public class UserController {
     }
 
     public static class URIRequest {
-        public static final String login = "/login";
-        public static final String signup = "/signup";
-        public static final String get = "/get";
-        public static final String update = "/update";
-        public static final String updateInfo = "/updateinfo";
-        public static final String changePass = "/changepass";
-        public static final String logOut = "/logout";
-        public static final String leaders = "/leaders";
+        public static final String LOGIN = "/login";
+        public static final String SIGNUP = "/signup";
+        public static final String GET = "/get";
+        public static final String UPDATE = "/update";
+        public static final String UPDATEINFO = "/updateinfo";
+        public static final String CHANGEPASS = "/changepass";
+        public static final String LOGOUT = "/logout";
+        public static final String LEADERS = "/leaders";
 
     }
 
     @CrossOrigin(origins = URL, maxAge = 3600)
-    @RequestMapping(path = URIRequest.login, method = RequestMethod.POST, produces = "application/json", consumes = "application/json")
+    @RequestMapping(path = URIRequest.LOGIN, method = RequestMethod.POST, produces = "application/json", consumes = "application/json")
     public String loginUser(@RequestBody User body, HttpSession httpSession) {
         final UsersData usersData = userService.login(body);
         if (usersData != null) {
@@ -52,7 +52,7 @@ public class UserController {
     }
 
     @CrossOrigin(origins = URL, maxAge = 3600)
-    @RequestMapping(path = URIRequest.signup, method = RequestMethod.POST, produces = "application/json",
+    @RequestMapping(path = URIRequest.SIGNUP, method = RequestMethod.POST, produces = "application/json",
             consumes = "application/json")
     public String registerUser(@RequestBody User body, HttpSession httpSession) {
         final UsersData usersData = userService.register(body);
@@ -64,7 +64,7 @@ public class UserController {
     }
 
     @CrossOrigin(origins = URL, maxAge = 3600)
-    @RequestMapping(path = URIRequest.get, method = RequestMethod.GET, produces = "application/json")
+    @RequestMapping(path = URIRequest.GET, method = RequestMethod.GET, produces = "application/json")
     public String getUser(HttpSession httpSession) {
         final String login = (String) httpSession.getAttribute(SESSIONKEY);
         if (login == null) return Answer.onlyStatus(new HttpStatus().getNotFound());
@@ -74,7 +74,7 @@ public class UserController {
     }
 
     @CrossOrigin(origins = URL, maxAge = 3600)
-    @RequestMapping(path = URIRequest.update, method = RequestMethod.POST, produces = "application/json",
+    @RequestMapping(path = URIRequest.UPDATE, method = RequestMethod.POST, produces = "application/json",
             consumes = "application/json")
     public String updateUserLogin(@RequestBody User body,
                                   HttpSession httpSession) {
@@ -93,7 +93,7 @@ public class UserController {
 
 
     @CrossOrigin(origins = URL, maxAge = 3600)
-    @RequestMapping(path = URIRequest.updateInfo, method = RequestMethod.POST, produces = "application/json",
+    @RequestMapping(path = URIRequest.UPDATEINFO, method = RequestMethod.POST, produces = "application/json",
             consumes = "application/json")
     public String updateUserInfo(@RequestBody UsersData body,
                                  HttpSession httpSession) {
@@ -107,7 +107,7 @@ public class UserController {
     }
 
     @CrossOrigin(origins = URL, maxAge = 3600)
-    @RequestMapping(path = URIRequest.changePass, method = RequestMethod.POST, produces = "application/json", consumes = "application/json")
+    @RequestMapping(path = URIRequest.CHANGEPASS, method = RequestMethod.POST, produces = "application/json", consumes = "application/json")
     public String changeUserPass(@RequestBody User body,
                                  HttpSession httpSession) {
         if (httpSession.getAttribute(SESSIONKEY) != null) {
@@ -120,7 +120,7 @@ public class UserController {
     }
 
     @CrossOrigin(origins = URL, maxAge = 3600)
-    @RequestMapping(path = URIRequest.logOut, method = RequestMethod.GET, produces = "application/json")
+    @RequestMapping(path = URIRequest.LOGOUT, method = RequestMethod.GET, produces = "application/json")
     public String logoutUser(HttpSession httpSession) {
         if (httpSession.getAttribute(SESSIONKEY) != null) {
             httpSession.removeAttribute(SESSIONKEY);
@@ -132,7 +132,7 @@ public class UserController {
     }
 
     @CrossOrigin(origins = URL, maxAge = 3600)
-    @RequestMapping(path = URIRequest.leaders, method = RequestMethod.GET, produces = "application/json")
+    @RequestMapping(path = URIRequest.LEADERS, method = RequestMethod.GET, produces = "application/json")
     public String getLeaders() {
         try {
             return Answer.forLeaders(new HttpStatus().getOk(), userService.getLeaders());

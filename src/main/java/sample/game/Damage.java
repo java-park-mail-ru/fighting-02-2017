@@ -3,6 +3,7 @@ package sample.game;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
+import org.springframework.stereotype.Service;
 import sample.websocket.Message;
 import support.GameData;
 
@@ -13,7 +14,8 @@ import java.util.ArrayList;
 /**
  * Created by andrey on 09.05.17.
  */
-public final class Damage {
+@Service
+public  class Damage {
     private static final Logger log = Logger.getLogger(Damage.class);
     public Integer baseDamage;
     public Double MethodHead;
@@ -21,50 +23,41 @@ public final class Damage {
     public Double MethodLeg;
     public Double BlockHead;
     public Double BlockBody;
-
-    private Damage() {
-    }
-
     private static Damage instance;
+    public void resourseUp(){
+        final InputStream inJson = GameData.class.getResourceAsStream("/InitialData.json");
+        try {
+            instance = new ObjectMapper().readValue(inJson, Damage.class);
 
-    public static Damage getInstance() {
-        if (instance == null) {
-            final InputStream inJson = GameData.class.getResourceAsStream("/InitialData.json");
-            try {
-                instance = new ObjectMapper().readValue(inJson, Damage.class);
-
-            } catch (IOException e) {
-                log.error("wrong json in resource file",e);
-            }
+        } catch (IOException e) {
+            log.error("wrong json in resource file",e);
         }
-        return instance;
     }
-
     public Double setKMethod(String method) {
+        System.out.println(instance.MethodArm);
         Double kProb = 1.0;
-        if (method.equals("arm")) kProb *= MethodArm;
-        if (method.equals("head")) kProb *= MethodHead;
-        if (method.equals("leg")) kProb *= MethodLeg;
+        if (method.equals("arm")) kProb *= instance.MethodArm;
+        if (method.equals("head")) kProb *= instance.MethodHead;
+        if (method.equals("leg")) kProb *= instance.MethodLeg;
         return kProb;
     }
 
     public Double setKBlock(String target, String block, Double kProb) {
         if (target.equals(block)) {
-            if (block.equals("body")) kProb *= BlockBody;
-            else kProb *= BlockHead;
+            if (block.equals("body")) kProb *= instance.BlockBody;
+            else kProb *= instance.BlockHead;
         } else kProb = kProb / 2.0;
         return kProb;
     }
 
     public @NotNull Integer setAndGetDamage(Double kProb) {
-        return (int) Math.round((1.0 - kProb) * baseDamage);
+        return (int) Math.round((1.0 - kProb) * instance.baseDamage);
     }
 
-    public ArrayList<SnapClient> getSnapsWithDamage(ArrayList<SnapClient> snaps) {
-        final ArrayList<Integer> damage = new ArrayList<>();
-        calculate(snaps.get(0),snaps.get(1).block);
-        calculate(snaps.get(1),snaps.get(0).block);
-        return snaps;
+    public void SetDamage(SnapClient first, SnapClient second) {
+
+        calculate(first,second.block);
+        calculate(second,first.block);
     }
     private void calculate(SnapClient snap, String block){
         if(snap.method==null) {

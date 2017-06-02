@@ -1,5 +1,6 @@
 package sample.game;
 
+import objects.UsersData;
 import org.apache.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -7,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.socket.CloseStatus;
 import sample.controllers.UserController;
 import sample.websocket.SocketService;
+import services.UserService;
 import support.Answer;
 import support.TimeOut;
 
@@ -22,9 +24,13 @@ import java.util.concurrent.atomic.AtomicLong;
 @Service
 public class GameMechanicsSingleThread {
     @Autowired
+    private UserService userService;
+    @Autowired
     private SocketService socketService;
     @Autowired
     private GameService gameService;
+    @Autowired
+    private Damage damage;
     ScheduledExecutorService executorScheduled = Executors.newScheduledThreadPool(1);
     static final Logger log = Logger.getLogger(UserController.class);
     private AtomicLong id = new AtomicLong(1);
@@ -37,44 +43,56 @@ public class GameMechanicsSingleThread {
             socketService.sendMessageToUser(login, Answer.messageClient("Waiting"));
             waiters.add(login);
         } else {
-            final Players players = new Players(login, waiters.poll());
-            playingNow.put(id.get(), players);
-            startGame(players.getLogins());
+            if(waiters.peek().equals(login))   socketService.sendMessageToUser(login, Answer.messageClient("Waiting"));
+            else startGame(login,waiters.poll());
         }
         executorScheduled.scheduleAtFixedRate(()-> socketService.sendMessageToUser(login,Answer.messageClient("pulse")), 15, 15, TimeUnit.SECONDS);
     }
 
-    public void startGame(ArrayList<String> logins) {
-        logins.forEach(item -> socketService.sendMessageToUser(item, Answer.messageClient(id.get(), logins)));
+    public void startGame(String first,String second) {
+        final Players players = new Players(first,second);
+        playingNow.put(id.get(), players);
+        socketService.sendMessageToUser(first,second,Answer.messageClient(first,second,id.get()));
         id.getAndIncrement();
     }
 
-    public void gmStep(Players players) {
-        final SnapServer snapServer = new SnapServer(players);
-        players.getLogins().forEach(item -> socketService.sendMessageToUser(item, snapServer.getJson()));
-        if (players.getSnaps().get(0).hp.equals(0) || (players.getSnaps().get(1).hp.equals(0))) {
-            playingNow.remove(players.getSnaps().get(0).getId());
-            endGame(players.getSnaps());
+    public void gmStep(Players players, Long id) {
+      final SnapServer snapServer = new SnapServer(players,id);
+        damage.SetDamage(players.getFSnap(), players.getSSnap());
+        socketService.sendMessageToUser(players.getFLogin(),players.getSLogin(), snapServer.getJson());
+        if (players.getFSnap().hp.equals(0) || (players.getSSnap().hp.equals(0))) {
+            playingNow.remove(players.getFSnap().getId());
+            endGame(players.getFSnap(),players.getSSnap());
         } else {
-            players.cleanSnaps();
+            players.clean();
         }
     }
 
     public void addSnap(SnapClient snap) {
         final Players players = playingNow.get(snap.getId());
-        if (players.setAndGetSize(snap) == 2) {
-            gmStep(players);
+        if (players.addSnap(snap)) {
+            gmStep(players,snap.getId());
         }
     }
 
-    public void endGame(ArrayList<SnapClient> snaps) {
+    public void endGame(SnapClient first,SnapClient second) {
+        final ArrayList<SnapClient> snaps=new ArrayList<>();
+        snaps.add(first);
+        snaps.add(second);
         snaps.forEach(item -> {
             if (item.hp <= 0)
                 socketService.sendMessageToUser(item.getLogin(), Answer.messageClient("Game over. You lose."));
             else
                 socketService.sendMessageToUser(item.getLogin(), Answer.messageClient("Game over. Congratulation! You win."));
+
             socketService.cutDownConnection(item.getLogin(), CloseStatus.NORMAL);
         });
+        if(first.hp>0){
+            userService.updateRating(first.getLogin(),second.getLogin());
+        }
+        if(second.hp>0){
+            userService.updateRating(first.getLogin(),second.getLogin());
+        }
     }
 }
 

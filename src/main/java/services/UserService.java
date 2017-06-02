@@ -111,11 +111,18 @@ public class UserService {
         }
     }
 
+    public void updateRating(String winner, String looser){
+        jdbcTemplate.update(
+                "UPDATE usersData SET rating = rating + ? WHERE login = ?", 1,winner);
+        jdbcTemplate.update(
+                "UPDATE usersData SET rating = rating + ? WHERE login = ?", -1,looser);
+
+    }
     public @Nullable UsersData updateInfo(UsersData usersData) {
         try {
             final int rownum = jdbcTemplate.update(
-                    "UPDATE usersData SET rating = rating + ?, game_count = ?, game_count_win = ?, " +
-                            "crystal_purple = ?, crystal_red = ?, crystal_blue = ?, crystal_green = ?" +
+                    "UPDATE usersData SET rating = rating + ?, game_count = game_count + ?, game_count_win = game_count_win + ?, " +
+                            "crystal_purple = crystal_purple + ?, crystal_red = crystal_red + ?, crystal_blue = crystal_blue + ?, crystal_green = crystal_green + ?" +
                             "WHERE login = ?",
                     usersData.getRating(),
                     usersData.getGameCount(),

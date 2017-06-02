@@ -8,33 +8,51 @@ import java.util.ArrayList;
  * Created by andrey on 08.05.17.
  */
 public class Players {
-    private ArrayList<SnapClient> snaps = new ArrayList<>();
-    private ArrayList<String> logins = new ArrayList<>();
-
-    Players(@NotNull ArrayList<String> logins) {
-        this.logins = logins;
+    private SnapClient fSnap;//first
+    private SnapClient sSnap;//second
+    private String fLogin;
+    private String sLogin;
+    Players(@NotNull SnapClient firstSnap,@NotNull SnapClient secondSnap) {
+      this.fSnap=firstSnap;
+      this.sSnap=secondSnap;
     }
+
+    public SnapClient getFSnap(){
+        System.out.println(fSnap);
+        return fSnap;
+    }
+
+
+    public SnapClient getSSnap(){return sSnap;}
 
     Players(@NotNull String first, @NotNull String second) {
-        this.logins.add(first);
-        this.logins.add(second);
+        this.fLogin=first;
+        this.sLogin=second;
     }
 
-    public int setAndGetSize(SnapClient snap) {
-        snaps.add(snap);
-        return snaps.size();
+    public boolean addSnap(SnapClient snap){
+        if(fSnap==null){
+            fSnap=snap;
+            return false;
+        }
+        if(sSnap==null){
+            sSnap=snap;
+            return true;
+        }
+        return false;
     }
 
-    public ArrayList<String> getLogins() {
-        return logins;
-    }
 
 
-    public ArrayList<SnapClient> getSnaps() {
-        return snaps;
+    public String getFLogin(){return fLogin;}
+
+    public String getSLogin(){return sLogin;}
+
+    public boolean check(){ return ((fSnap!=null)&&(sSnap!=null));}
+
+    public void clean(){
+        this.sSnap=null;
+        this.fSnap=null;
     }
 
-    public void cleanSnaps() {
-        snaps.clear();
-    }
 }

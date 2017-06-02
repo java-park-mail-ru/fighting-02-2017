@@ -45,7 +45,7 @@ public final class Answer {
         return result;
     }
 
-    public static JSONObject messageClient(Long id, String first, String second) {
+    public static JSONObject messageClient(String first, String second, Long id) {
         final JSONObject result = new JSONObject();
         result.put("key", id);
         result.put("first", first);

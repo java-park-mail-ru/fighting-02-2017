@@ -44,7 +44,6 @@ public class SocketService {
     }
 
     public void removeUser(@NotNull String login) {
-        sendMessageToUser(login, Answer.messageClient("Disconnect"));
         sessions.remove(login);
     }
 

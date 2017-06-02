@@ -55,12 +55,11 @@ public  class Damage {
     }
 
     public void SetDamage(SnapClient first, SnapClient second) {
-
         calculate(first,second.block);
         calculate(second,first.block);
     }
     private void calculate(SnapClient snap, String block){
-        if(snap.method==null) {
+        if(snap.method.equals("null")) {
             snap.setTakenDamage(0);
             return;
         }

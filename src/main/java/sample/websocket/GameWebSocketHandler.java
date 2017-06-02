@@ -74,6 +74,7 @@ public class GameWebSocketHandler extends TextWebSocketHandler {
         final String login = (String) webSocketSession.getAttributes().get(SESSIONKEY);
         if (login == null) {
             log.error("null login");
+            return;
         }
         socketService.removeUser(login);
     }
